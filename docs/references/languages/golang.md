@@ -1,4 +1,4 @@
-# Go — debutant overlay
+# Go — debaid overlay
 
 Debian Go packaging is centralised around the `dh-golang`
 build system and the `dh-make-golang` initial-conversion tool.
@@ -36,7 +36,7 @@ overrides are added when needed.
 
 `dh-make-golang` can generate a starter `debian/` from an
 import path. **Do not ship `dh-make-golang` output directly.**
-Use it as a comparison run, the same way debutant treats
+Use it as a comparison run, the same way debaid treats
 `dh_make` output:
 
 ```
@@ -44,7 +44,7 @@ mkdir /tmp/dhmg && cd /tmp/dhmg
 dh-make-golang make github.com/<owner>/<repo>
 ```
 
-Compare its choices against debutant's output, then write the
+Compare its choices against debaid's output, then write the
 actual `debian/` per house-style.
 
 ## Package naming

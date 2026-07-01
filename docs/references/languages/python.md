@@ -1,6 +1,6 @@
-# Python — debutant overlay
+# Python — debaid overlay
 
-Debian Python packaging conventions and the debutant defaults
+Debian Python packaging conventions and the debaid defaults
 for them. Read alongside `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`;
 this file only documents what is *Python-specific*.
 

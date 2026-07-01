@@ -1,8 +1,8 @@
-# Plan: `debutant` — Debian packaging skills for LLMs
+# Plan: `debaid` — Debian packaging skills for LLMs
 
 ## Context
 
-`debutant` will provide Claude Code skills that automate common Debian
+`debaid` will provide Claude Code skills that automate common Debian
 packaging maintenance tasks: bootstrapping a new package, refreshing an
 existing `debian/` directory to current practice, adding autopkgtest
 coverage, and resolving lintian issues. Repo is greenfield — only a
@@ -38,21 +38,21 @@ Design decisions locked in with the user:
 
 ```
 skills/
-├── debutant/                  # Orchestrator skill (user entry point)
+├── debaid/                  # Orchestrator skill (user entry point)
 │   ├── SKILL.md               # accepts --only/--skip, dispatches workers
 │   ├── house-style.md         # DD-judgement preferences (versioned, dated)
 │   ├── shared-context.md      # how workers load common context
 │   └── scripts/
 │       ├── detect-source.sh   # build system, language, existing d/ state
 │       └── tooling-probe.sh   # sbuild? debputy? autopkgtest? versions?
-├── debutant-bootstrap/        # New package from scratch
-├── debutant-refresh/          # Modernise existing debian/
-├── debutant-lintian/          # Fix tags + write justified overrides
-└── debutant-autopkgtest/      # Add or improve d/tests/
+├── debaid-bootstrap/        # New package from scratch
+├── debaid-refresh/          # Modernise existing debian/
+├── debaid-lintian/          # Fix tags + write justified overrides
+└── debaid-autopkgtest/      # Add or improve d/tests/
 ```
 
 Each worker skill is **independently invocable** (so a maintainer can
-call `debutant-lintian` directly without the orchestrator) but also
+call `debaid-lintian` directly without the orchestrator) but also
 **designed to be chained** by the orchestrator, which pre-populates a
 shared context file that workers consult to avoid redundant probing.
 
@@ -62,7 +62,7 @@ shared context file that workers consult to avoid redundant probing.
 
 Build before any worker exists. Defines what every worker can assume.
 
-- `skills/debutant/house-style.md`: the prescriptive DD-judgement file.
+- `skills/debaid/house-style.md`: the prescriptive DD-judgement file.
   Dated, versioned, reviewed quarterly. Contents (initial draft —
   needs your sign-off):
   - `debhelper-compat (= 13)` default; 14 only when explicitly opted in
@@ -84,16 +84,16 @@ Build before any worker exists. Defines what every worker can assume.
   - Salsa-CI enabled (`debian/salsa-ci.yml`) for new packages
   - DEP-14 branch naming for Vcs-Git
 
-- `skills/debutant/scripts/detect-source.sh`: reports as JSON
+- `skills/debaid/scripts/detect-source.sh`: reports as JSON
   `{language, build_system, has_debian_dir, has_quilt_patches,
    debian_branch_layout, upstream_vcs}`.
 
-- `skills/debutant/scripts/tooling-probe.sh`: reports versions and
+- `skills/debaid/scripts/tooling-probe.sh`: reports versions and
   availability of `sbuild`, `pbuilder`, `autopkgtest`, `lintian`,
   `debputy`, `wrap-and-sort`, `gbp`, `git-buildpackage`,
   `dh_make`, `cme`.
 
-- `skills/debutant/shared-context.md`: documents the JSON contract
+- `skills/debaid/shared-context.md`: documents the JSON contract
   workers consume; defines the iteration-budget envelope (default: 3
   retries per error class, 200-line diff threshold before requiring
   developer confirmation); documents the reference-corpus contract
@@ -118,7 +118,7 @@ Build before any worker exists. Defines what every worker can assume.
   - `salsa-ci.md` — what the standard pipeline checks, common
     failures and their meaning.
 
-### Step 2 — `debutant-bootstrap`
+### Step 2 — `debaid-bootstrap`
 
 Create `debian/` for an unpackaged upstream source tree.
 
@@ -138,7 +138,7 @@ Path:
    noisy and out of date.
 4. Run build+lint loop (Step 6).
 
-### Step 3 — `debutant-refresh`
+### Step 3 — `debaid-refresh`
 
 Modernise an existing `debian/` to match the house style.
 
@@ -163,7 +163,7 @@ Scope of refresh (checklist, opt-in per item via flags):
   without verifying file collisions)
 - Salsa-CI introduction
 
-### Step 4 — `debutant-lintian`
+### Step 4 — `debaid-lintian`
 
 Resolve `lintian -EvIL +pedantic` output.
 
@@ -182,7 +182,7 @@ Workflow:
 Iteration bail-out: if the same tag persists after 3 fix attempts, stop
 and ask the maintainer with a structured summary of what was tried.
 
-### Step 5 — `debutant-autopkgtest`
+### Step 5 — `debaid-autopkgtest`
 
 Add or improve `debian/tests/`.
 
@@ -221,15 +221,15 @@ Structured bail-out summary must include: what was tried, what
 failed, current lintian / sbuild output, the proposed next step, and
 a question for the maintainer with concrete options.
 
-### Step 7 — Orchestrator `debutant`
+### Step 7 — Orchestrator `debaid`
 
 Accepts `--only=<phases>` / `--skip=<phases>`; phases are the worker
 names (`bootstrap`, `refresh`, `lintian`, `autopkgtest`). Examples:
 
-- `/debutant` — full pipeline (detect → refresh-or-bootstrap →
+- `/debaid` — full pipeline (detect → refresh-or-bootstrap →
   lintian → autopkgtest), each phase gated by a confirmation.
-- `/debutant --only=lintian` — just lintian.
-- `/debutant --only=refresh,lintian --skip=autopkgtest` —
+- `/debaid --only=lintian` — just lintian.
+- `/debaid --only=refresh,lintian --skip=autopkgtest` —
   modernisation pass without test work.
 
 Loads shared context once, passes it to each worker as a path argument,
@@ -297,15 +297,15 @@ prompt logic, not a separate skill. Ship after Steps 1–7 are stable.
 ## Repo layout (target)
 
 ```
-debutant/
+debaid/
 ├── workshop.yaml             # already exists
 ├── README.md                 # ship-time
 ├── skills/
-│   ├── debutant/
-│   ├── debutant-bootstrap/
-│   ├── debutant-refresh/
-│   ├── debutant-lintian/
-│   └── debutant-autopkgtest/
+│   ├── debaid/
+│   ├── debaid-bootstrap/
+│   ├── debaid-refresh/
+│   ├── debaid-lintian/
+│   └── debaid-autopkgtest/
 ├── tests/
 │   └── fixtures/             # small reference upstream trees to exercise workers
 │       ├── hello-c-autotools/
@@ -324,7 +324,7 @@ debutant/
         └── salsa-ci.md
 ```
 
-## Verification (how we test debutant itself)
+## Verification (how we test debaid itself)
 
 End-to-end fixtures under `tests/fixtures/`:
 1. `hello-c-autotools/` — exercise bootstrap from a clean autotools
@@ -369,7 +369,7 @@ framework is usable now and self-extending later.
 - Aggregate: exit non-zero only if any non-stub fixture fails.
 - Pass `--strict` to also fail when any stub remains (gate for
   release).
-- Honour `$DEBUTANT_CLAUDE_CMD` (default: `claude --bare --print`)
+- Honour `$DEBAID_CLAUDE_CMD` (default: `claude --bare --print`)
   so the workshop and a plain shell can both drive it.
 - POSIX-ish bash, `set -euo pipefail`, no external deps beyond
   `diff`, `find`, and the `claude` CLI.
@@ -405,8 +405,8 @@ interpolated raw into JSON. Paths with quotes/backslashes/newlines,
 or odd `--version` output, will produce invalid JSON.
 
 **Files**:
-- `skills/debutant/scripts/detect-source.sh`
-- `skills/debutant/scripts/tooling-probe.sh`
+- `skills/debaid/scripts/detect-source.sh`
+- `skills/debaid/scripts/tooling-probe.sh`
 
 **Approach**: build JSON with `jq -n --arg ... --argjson ...`.
 `jq` is a hard dep — acceptable because every Debian packaging
@@ -460,7 +460,7 @@ errors clearly if jq is missing.
 enable. Currently `**` collapses to `*` silently and the recursive
 intent is lost.
 
-**File**: `skills/debutant/scripts/detect-source.sh`, lines 52–61.
+**File**: `skills/debaid/scripts/detect-source.sh`, lines 52–61.
 
 Replace the `have_glob "**/*.c"` (etc.) calls with a `find`-based
 helper:
@@ -500,7 +500,7 @@ Keep `have_glob` for non-recursive single-directory checks (e.g.
 - Multiple tarballs match (`[[ -f a b c ]]` is a syntax error).
 - The glob expands to nothing AND `failglob`/`nullglob` is on.
 
-**File**: `skills/debutant/scripts/detect-source.sh`, line 94.
+**File**: `skills/debaid/scripts/detect-source.sh`, line 94.
 
 Replace:
 ```bash
@@ -524,11 +524,11 @@ Also covers `.tar.bz2` and `.tar.zst` (modern upstream releases).
 
 After applying all five patches:
 
-1. `bash -n skills/debutant/scripts/detect-source.sh` — syntax-check.
-2. `./skills/debutant/scripts/detect-source.sh` from this repo
+1. `bash -n skills/debaid/scripts/detect-source.sh` — syntax-check.
+2. `./skills/debaid/scripts/detect-source.sh` from this repo
    root — should still emit valid JSON; pipe through `jq .` to
    verify.
-3. `./skills/debutant/scripts/detect-source.sh /tmp/path\ with\ "quotes"`
+3. `./skills/debaid/scripts/detect-source.sh /tmp/path\ with\ "quotes"`
    (after creating such a path) — JSON should remain valid.
 4. Drop a stray `foo.tar.gz` AND `bar.tar.gz` next to a non-git
    tree; rerun detect-source — should report `upstream_vcs:
@@ -542,8 +542,8 @@ After applying all five patches:
 - `tests/verify.sh` (new, executable) — see P6 correction
 - `tests/fixtures/README.md` (link to verify.sh)
 - `README.md` (P2 line swap)
-- `skills/debutant/scripts/detect-source.sh` (P3 + P4 + P5)
-- `skills/debutant/scripts/tooling-probe.sh` (P3)
+- `skills/debaid/scripts/detect-source.sh` (P3 + P4 + P5)
+- `skills/debaid/scripts/tooling-probe.sh` (P3)
 
 ### P6 — Misplaced verify.sh (correction)
 
@@ -557,7 +557,7 @@ beyond their name.
 
 - Move `tests/verify.sh` → `tests/run-fixtures.sh` (its real
   purpose). Update the `tests/fixtures/README.md` link.
-- Add the actual `skills/debutant/scripts/verify.sh`. Shape:
+- Add the actual `skills/debaid/scripts/verify.sh`. Shape:
   - Inputs: `[--builder=sbuild|dpkg-buildpackage]
             [--no-build] [PATH]`.
   - Runs the configured build (auto-pick sbuild → dpkg-buildpackage)
@@ -576,7 +576,7 @@ beyond their name.
 
 **Files touched (P6):**
 
-- `skills/debutant/scripts/verify.sh` (new, executable)
+- `skills/debaid/scripts/verify.sh` (new, executable)
 - `tests/verify.sh` → `tests/run-fixtures.sh` (rename)
 - `tests/fixtures/README.md` (rename + add disambiguation note)
 

@@ -1,15 +1,15 @@
-# debutant — developer guide
+# debaid — developer guide
 
-How to extend `debutant` with a new worker, fixture, or reference
+How to extend `debaid` with a new worker, fixture, or reference
 doc.
 
-`debutant` is packaged as a Claude Code plugin. The plugin
+`debaid` is packaged as a Claude Code plugin. The plugin
 manifest is `.claude-plugin/plugin.json`; everything else
 (skills, scripts, docs, tests) sits at the plugin root. Skills
-become slash commands under the `/debutant:` namespace —
-`skills/lintian/SKILL.md` ⇒ `/debutant:lintian`, and so on. The
+become slash commands under the `/debaid:` namespace —
+`skills/lintian/SKILL.md` ⇒ `/debaid:lintian`, and so on. The
 orchestrator lives at `skills/run/` and is invoked as
-`/debutant:run`.
+`/debaid:run`.
 
 ## Adding a new worker
 
@@ -20,7 +20,7 @@ Steps:
 
 1. **Pick a name.** Workers are named after their phase:
    `bootstrap`, `refresh`, `lintian`, `autopkgtest`. Pick a short
-   verb or noun; the slash command will be `/debutant:<name>`.
+   verb or noun; the slash command will be `/debaid:<name>`.
 2. **Create the skill directory.**
    ```
    mkdir -p skills/<name>
@@ -104,7 +104,7 @@ Add an overlay when both of these hold:
   `dh-cargo` / `pybuild`, a watch template, an autodep8
   generator, a refresh-time cruft pattern).
 - The language is established enough in Debian that multiple
-  users of debutant are likely to package in it.
+  users of debaid are likely to package in it.
 
 ### Files an overlay touches
 
@@ -133,7 +133,7 @@ of `rules.python.tmpl`.
    `docs/references/languages/<lang>.md`. Follow the shape of
    the existing overlays — at minimum these sections:
 
-   - `# <Language> — debutant overlay` + a short intro pointing
+   - `# <Language> — debaid overlay` + a short intro pointing
      back to `house-style.md`.
    - Authoritative upstream sources (Debian policy / team /
      manpages).
@@ -158,7 +158,7 @@ of `rules.python.tmpl`.
    - `## Bail-out conditions` — language-specific bail-outs in
      addition to the worker-level ones.
 
-3. **Align to debutant house style.** Three frequent traps:
+3. **Align to debaid house style.** Three frequent traps:
    - **Watch v5 only.** Never recommend v3 or v4 watch syntax.
    - **No `dh_make`-style output shipped.** `dh-make-perl`,
      `dh-make-golang`, `py2dsc`, etc. are comparison runs in
@@ -270,10 +270,10 @@ lives in the template — the discipline is here.
 
 ```
 # Load the plugin from this checkout for the current session:
-claude --plugin-dir /path/to/debutant
+claude --plugin-dir /path/to/debaid
 
 # Then invoke a worker as a slash command:
-/debutant:lintian
+/debaid:lintian
 ```
 
 After editing a skill, run `/reload-plugins` to pick up changes
@@ -286,6 +286,6 @@ non-interactive form — see `workshop.yaml`.
 
 `.claude-plugin/plugin.json` carries the plugin name, description,
 version, and author. The `name` field controls the slash-command
-namespace (`/debutant:<skill>`). Bump `version` on every release
+namespace (`/debaid:<skill>`). Bump `version` on every release
 that ships to users — Claude Code uses it to decide whether to
 re-fetch the plugin.

@@ -1,5 +1,5 @@
 {
-  "name": "debutant",
+  "name": "debaid",
   "description": "Debian/Ubuntu packaging assistant: bootstrap, refresh, lintian-clean, and add autopkgtest coverage — house-style prescriptive, maintainer-in-the-loop.",
   "version": "0.2.0",
   "author": {

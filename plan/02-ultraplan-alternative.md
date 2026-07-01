@@ -1,8 +1,8 @@
-# Plan: `debutant` — Debian packaging skills for LLMs
+# Plan: `debaid` — Debian packaging skills for LLMs
 
 ## Context
 
-`debutant` will provide Claude Code skills that automate common Debian
+`debaid` will provide Claude Code skills that automate common Debian
 packaging maintenance tasks: bootstrapping a new package, refreshing
 an existing `debian/` directory to current practice, adding
 autopkgtest coverage, and resolving lintian issues.
@@ -42,12 +42,12 @@ Design decisions locked in with the user:
 
 ```mermaid
 flowchart TD
-    User["Maintainer<br/>(/debutant or /debutant-lintian)"] --> Orch[skills/debutant<br/>orchestrator]
+    User["Maintainer<br/>(/debaid or /debaid-lintian)"] --> Orch[skills/debaid<br/>orchestrator]
     User -.->|direct invocation| W3
-    Orch -->|--only/--skip dispatch via Skill tool| W1[debutant-bootstrap]
-    Orch --> W2[debutant-refresh]
-    Orch --> W3[debutant-lintian]
-    Orch --> W4[debutant-autopkgtest]
+    Orch -->|--only/--skip dispatch via Skill tool| W1[debaid-bootstrap]
+    Orch --> W2[debaid-refresh]
+    Orch --> W3[debaid-lintian]
+    Orch --> W4[debaid-autopkgtest]
 
     subgraph Shared assets
       direction TB
@@ -58,7 +58,7 @@ flowchart TD
     end
 
     Orch -->|runs once| Probes
-    Probes -->|writes| Ctx[(.debutant/context.json<br/>runtime, gitignored)]
+    Probes -->|writes| Ctx[(.debaid/context.json<br/>runtime, gitignored)]
     Orch -->|reads / passes path| Ctx
 
     W1 & W2 & W3 & W4 -->|read| HS
@@ -72,7 +72,7 @@ flowchart TD
 ```
 
 Each worker skill is **independently invocable** (a maintainer can
-call `/debutant-lintian` directly without the orchestrator) but also
+call `/debaid-lintian` directly without the orchestrator) but also
 **designed to be chained** by the orchestrator, which pre-populates
 the shared runtime context so workers don't re-probe.
 
@@ -97,9 +97,9 @@ worker name.
 
 ### Runtime context
 
-Workers consume `.debutant/context.json` in the workspace
+Workers consume `.debaid/context.json` in the workspace
 (gitignored, added to `.gitignore` in Phase 1). Schema documented in
-`skills/debutant/shared-context.md`:
+`skills/debaid/shared-context.md`:
 
 ```
 {
@@ -136,11 +136,11 @@ Build before any worker. Defines what every worker can assume.
 
 Files to create:
 
-- `skills/debutant/SKILL.md` — orchestrator stub. Frontmatter
+- `skills/debaid/SKILL.md` — orchestrator stub. Frontmatter
   `description: Debian packaging assistant: bootstrap, refresh,
   lintian, and autopkgtest workers.` Body documents `--only`/`--skip`
   flag parsing; full dispatch logic deferred to Phase 4.
-- `skills/debutant/house-style.md` — the prescriptive DD-judgement
+- `skills/debaid/house-style.md` — the prescriptive DD-judgement
   file. Dated, versioned (header `Last reviewed: YYYY-MM-DD`),
   reviewed quarterly. Each rule cites Policy section, devref
   chapter, DEP number, or marks itself "DD-judgement". Initial
@@ -166,17 +166,17 @@ Files to create:
     explicitly approves a release
   - Salsa-CI enabled (`debian/salsa-ci.yml`) for new packages
   - DEP-14 branch naming for Vcs-Git
-- `skills/debutant/shared-context.md` — documents the
-  `.debutant/context.json` schema (above), the iteration-budget
+- `skills/debaid/shared-context.md` — documents the
+  `.debaid/context.json` schema (above), the iteration-budget
   envelope (defaults: 3 retries per error class, 200-line diff
   threshold), and the reference-corpus contract (default path
   `references/exemplars/`, override via `--reference=<path>`,
   disable via `--reference=none`).
-- `skills/debutant/scripts/detect-source.sh` — emits the JSON in
+- `skills/debaid/scripts/detect-source.sh` — emits the JSON in
   the schema above.
-- `skills/debutant/scripts/tooling-probe.sh` — populates the
+- `skills/debaid/scripts/tooling-probe.sh` — populates the
   `tooling` block.
-- `skills/debutant/scripts/verify.sh` — runs `sbuild` and
+- `skills/debaid/scripts/verify.sh` — runs `sbuild` and
   `lintian -EvIL +pedantic`, emits a structured JSON result
   `{ build_ok, lint_tags: [...], same_class_as_previous }` for
   workers' verification loop. Loop control (decide / retry / bail)
@@ -187,8 +187,8 @@ Files to create:
    them by path in bail-out summaries.
 - `references/exemplars/.gitkeep` — directory placeholder; real
   exemplars added as discovered.
-- `.gitignore` — append `.debutant/`.
-- `README.md` — what `debutant` is, how to invoke, scope, link to
+- `.gitignore` — append `.debaid/`.
+- `README.md` — what `debaid` is, how to invoke, scope, link to
   `docs/`.
 - `docs/developer.md` — how to add a new worker.
 
@@ -200,7 +200,7 @@ Verification: scripts run cleanly on this empty repo and on a
 sample Debian source tree (e.g., `apt-get source hello`); JSON
 output matches the documented schema.
 
-### Phase 2 — First worker: `debutant-lintian` (PR 2)
+### Phase 2 — First worker: `debaid-lintian` (PR 2)
 
 Chosen as the proof-of-concept worker because it's the most
 contained: it consumes lintian output and produces small, isolated
@@ -209,10 +209,10 @@ workers are built.
 
 Files to create:
 
-- `skills/debutant-lintian/SKILL.md` — frontmatter
+- `skills/debaid-lintian/SKILL.md` — frontmatter
   `description: Resolve lintian -EvIL +pedantic tags on a Debian
   source package.` Body workflow:
-  1. Ensure `.debutant/context.json` exists; generate if missing.
+  1. Ensure `.debaid/context.json` exists; generate if missing.
   2. Run `lintian -EvIL +pedantic`.
   3. Classify each tag: *fix in packaging*, *fix upstream via
      patch*, *justified override*, *won't fix*.
@@ -241,7 +241,7 @@ fixture; bail-out triggers when an unfixable tag is injected
 Each follows the pattern proven in Phase 2: own `SKILL.md`,
 verification loop, fixture, test script.
 
-- `skills/debutant-bootstrap/SKILL.md` — Create `debian/` for an
+- `skills/debaid-bootstrap/SKILL.md` — Create `debian/` for an
   unpackaged upstream tree.
   1. Run `detect-source` and `tooling-probe`.
   2. Generate `control`, `copyright`, `rules`, `changelog`,
@@ -250,7 +250,7 @@ verification loop, fixture, test script.
   3. Use `dh_make` only as a structural reference — **never** ship
      its output unchanged.
   4. Run verify loop (Phase 1's `verify.sh`).
-- `skills/debutant-refresh/SKILL.md` — Modernise an existing
+- `skills/debaid-refresh/SKILL.md` — Modernise an existing
   `debian/`. **Most dangerous worker** — mutates work the
   maintainer made deliberate choices about. Hard rules:
   - Default to **dry-run** (produce a diff, do not write).
@@ -267,7 +267,7 @@ verification loop, fixture, test script.
   migration, `wrap-and-sort` pass, watch v4 upgrade, DEP-5
   copyright normalisation, M-A audit (advisory only), Salsa-CI
   introduction.
-- `skills/debutant-autopkgtest/SKILL.md` — Add or improve
+- `skills/debaid-autopkgtest/SKILL.md` — Add or improve
   `debian/tests/`.
   - Detect language/framework; propose `Test-Command:` or per-test
     scripts.
@@ -293,12 +293,12 @@ Phase 2's pattern.
 
 ### Phase 4 — Orchestrator wiring (PR 4)
 
-Flesh out `skills/debutant/SKILL.md`:
+Flesh out `skills/debaid/SKILL.md`:
 
 - Parse `--only` / `--skip` from the Skill tool `args` string.
 - Phase order: detect → (bootstrap **xor** refresh, based on
   `has_debian_dir`) → lintian → autopkgtest.
-- Run probe scripts once, write `.debutant/context.json`, pass
+- Run probe scripts once, write `.debaid/context.json`, pass
   the path implicitly (workers read the well-known location).
 - Between phases: print a one-paragraph transition summary so the
   maintainer sees the whole story in one transcript.
@@ -338,12 +338,12 @@ concrete options.
 ## Repo layout (target after Phase 4)
 
 ```
-debutant/
+debaid/
 ├── workshop.yaml                  # already exists
-├── .gitignore                     # +.debutant/
+├── .gitignore                     # +.debaid/
 ├── README.md
 ├── skills/
-│   ├── debutant/                  # orchestrator
+│   ├── debaid/                  # orchestrator
 │   │   ├── SKILL.md
 │   │   ├── house-style.md
 │   │   ├── shared-context.md
@@ -351,10 +351,10 @@ debutant/
 │   │       ├── detect-source.sh
 │   │       ├── tooling-probe.sh
 │   │       └── verify.sh
-│   ├── debutant-bootstrap/SKILL.md
-│   ├── debutant-refresh/SKILL.md
-│   ├── debutant-lintian/SKILL.md
-│   └── debutant-autopkgtest/SKILL.md
+│   ├── debaid-bootstrap/SKILL.md
+│   ├── debaid-refresh/SKILL.md
+│   ├── debaid-lintian/SKILL.md
+│   └── debaid-autopkgtest/SKILL.md
 ├── docs/
 │   ├── developer.md
 │   └── references/
@@ -417,11 +417,11 @@ debutant/
 - Standards-Version, compat, debhelper add-on names drift; assume
   `house-style.md` entries go stale within ~6 months.
 
-## Verification (how we test debutant itself)
+## Verification (how we test debaid itself)
 
 Each phase ships its own driver script in `tests/`:
 
-1. Phase 1: `bash skills/debutant/scripts/detect-source.sh` and
+1. Phase 1: `bash skills/debaid/scripts/detect-source.sh` and
    `tooling-probe.sh` against this repo and an `apt-get source
    hello` checkout — JSON validates against `shared-context.md`
    schema.
@@ -450,7 +450,7 @@ workshop action so they're runnable both locally and in CI.
   before three more workers land.
 - Specified `SKILL.md` YAML frontmatter format and how skills
   invoke each other (Skill tool with worker name).
-- Pinned the runtime context location: `.debutant/context.json` in
+- Pinned the runtime context location: `.debaid/context.json` in
   the workspace (gitignored).
 - Separated `references/exemplars/` (vetted `debian/` trees workers
   imitate) from `tests/fixtures/` (test inputs) — the draft

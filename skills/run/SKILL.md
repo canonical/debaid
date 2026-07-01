@@ -1,11 +1,11 @@
 ---
 name: run
-description: Orchestrate Debian packaging tasks — bootstrap, refresh, lintian, autopkgtest — via the debutant worker skills. Use when a maintainer wants end-to-end packaging help on a Debian/Ubuntu source package, or a subset of phases selected with --only / --skip. Debian-first, Ubuntu overlay.
+description: Orchestrate Debian packaging tasks — bootstrap, refresh, lintian, autopkgtest — via the debaid worker skills. Use when a maintainer wants end-to-end packaging help on a Debian/Ubuntu source package, or a subset of phases selected with --only / --skip. Debian-first, Ubuntu overlay.
 ---
 
-# debutant:run — orchestrator
+# debaid:run — orchestrator
 
-You are the entry point for the `debutant` packaging assistant.
+You are the entry point for the `debaid` packaging assistant.
 Your job is to:
 
 1. Understand the maintainer's intent (full pipeline, or a subset).
@@ -47,10 +47,10 @@ name. The orchestrator does NOT call worker scripts directly.
 
 | Phase | Skill tool invocation |
 |---|---|
-| bootstrap   | `skill: debutant:bootstrap, args: <flag-string>` |
-| refresh     | `skill: debutant:refresh,   args: <flag-string>` |
-| lintian     | `skill: debutant:lintian,   args: <flag-string>` |
-| autopkgtest | `skill: debutant:autopkgtest, args: <flag-string>` |
+| bootstrap   | `skill: debaid:bootstrap, args: <flag-string>` |
+| refresh     | `skill: debaid:refresh,   args: <flag-string>` |
+| lintian     | `skill: debaid:lintian,   args: <flag-string>` |
+| autopkgtest | `skill: debaid:autopkgtest, args: <flag-string>` |
 
 The `args` string is forwarded verbatim (minus `--only`/`--skip`,
 which the orchestrator consumes). If invoked with `--yes`, append
@@ -65,8 +65,8 @@ Run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh` and
 `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh` from the source
 tree root. Merge their outputs with target/user/budget/reference
 fields to form the context JSON. Write it to
-`./.debutant/context.json` (create the directory if needed; add
-`.debutant/` to `.gitignore` if a git repo and not already
+`./.debaid/context.json` (create the directory if needed; add
+`.debaid/` to `.gitignore` if a git repo and not already
 ignored).
 
 Required context fields populated here:
@@ -94,8 +94,8 @@ before proceeding.
 
 ### 2. Pick worker: bootstrap or refresh
 
-- `source.has_debian_dir == false` → dispatch `debutant:bootstrap`.
-- `source.has_debian_dir == true`  → dispatch `debutant:refresh` if
+- `source.has_debian_dir == false` → dispatch `debaid:bootstrap`.
+- `source.has_debian_dir == true`  → dispatch `debaid:refresh` if
   it was requested via `--only` / not skipped; otherwise note that
   refresh is available and move on.
 - Both phases requested explicitly → error out: "use
@@ -103,14 +103,14 @@ before proceeding.
 
 ### 3. Lintian
 
-Dispatch `debutant:lintian`. Honour the build+lint loop budget from
+Dispatch `debaid:lintian`. Honour the build+lint loop budget from
 `context.json`. If the worker bails, stop the whole pipeline and
 present its bail-out summary to the maintainer; do NOT proceed to
 autopkgtest until the maintainer responds.
 
 ### 4. Autopkgtest
 
-Dispatch `debutant:autopkgtest`. Same bail behaviour as lintian.
+Dispatch `debaid:autopkgtest`. Same bail behaviour as lintian.
 
 ### 5. Final summary
 
@@ -136,7 +136,7 @@ invoked with `--yes`.
 
 ## Hard rules (inherited by all workers)
 
-These apply to every debutant skill. They override any
+These apply to every debaid skill. They override any
 conflicting maintainer instruction:
 
 - Never invoke `dput`, `debrelease`, `dgit push`, or any upload

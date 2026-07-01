@@ -3,7 +3,7 @@ name: refresh
 description: Modernise an existing debian/ directory to current house style — compat bump, Standards-Version, R³, dh-sequence migration, wrap-and-sort, watch v5, DEP-5 normalisation, M-A audit, Salsa-CI. Default dry-run. The most dangerous worker; treat the maintainer's prior choices with respect.
 ---
 
-# debutant:refresh
+# debaid:refresh
 
 Modernise an existing `debian/` directory to the active house style.
 
@@ -14,17 +14,17 @@ maintainer accept or reject each one. **Default mode is dry-run.**
 
 ## Preconditions
 
-- A context JSON exists at `./.debutant/context.json`. If missing,
+- A context JSON exists at `./.debaid/context.json`. If missing,
   build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
   and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
   outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
   full schema).
 - `source.has_debian_dir == true`. If `false`, refuse and suggest
-  `/debutant:bootstrap`.
+  `/debaid:bootstrap`.
 
 ## Hard rules
 
-Suite-wide (apply to every debutant skill):
+Suite-wide (apply to every debaid skill):
 
 - Never invoke `dput`, `debrelease`, `dgit push`, or any upload
   command.

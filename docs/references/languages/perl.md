@@ -1,4 +1,4 @@
-# Perl — debutant overlay
+# Perl — debaid overlay
 
 > **⚠️ DRAFT.** Drafted from public Debian Perl Group knowledge
 > without input from an active pkg-perl maintainer. Remove this
@@ -45,14 +45,14 @@ Perl packages are uncommon.
 `dh-make-perl --cpan Foo::Bar` generates a starter `debian/`
 from CPAN metadata. **Do not ship `dh-make-perl` output
 directly.** Use it as a comparison run in `/tmp`, the same
-way debutant treats `dh_make` and `dh-make-golang` output:
+way debaid treats `dh_make` and `dh-make-golang` output:
 
 ```
 mkdir /tmp/dhmp && cd /tmp/dhmp
 dh-make-perl --cpan Foo::Bar
 ```
 
-Compare its choices against debutant's output, then write
+Compare its choices against debaid's output, then write
 the actual `debian/` per house-style.
 
 ## Package naming

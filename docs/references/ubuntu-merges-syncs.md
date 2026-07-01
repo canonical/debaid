@@ -46,7 +46,7 @@ and publishes per-component reports (`main`, `universe`,
 `restricted`, `multiverse`). When a merge is on the report, the
 heavy lifting is already done — the maintainer reviews and uploads.
 
-## What workers do (when a /debutant:merge worker exists)
+## What workers do (when a /debaid:merge worker exists)
 
 - Detect `source.ubuntu_delta`.
 - Read the changelog and identify the Ubuntu delta commits.

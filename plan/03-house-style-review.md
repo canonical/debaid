@@ -4,7 +4,7 @@
 
 User made four updates to the prescriptive packaging house-style
 file (`docs/house-style.md`) on top of the plugin restructure they
-just shipped. The file is consulted by every debutant skill on
+just shipped. The file is consulted by every debaid skill on
 every run via `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`; changes
 here propagate into generated `debian/` directories. Reviewer's
 job is to flag correctness issues, internal inconsistencies, and
@@ -132,7 +132,7 @@ The bootstrap worker's `SKILL.md` already cites house-style as the
 source of truth, but `bootstrap` will copy template values
 verbatim before substitution — drift between template and
 house-style means generated `debian/` directories will fail their
-own house-style audit on the very next `/debutant:lintian` run.
+own house-style audit on the very next `/debaid:lintian` run.
 
 ## Critical files to update (recommended order)
 

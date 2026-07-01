@@ -1,5 +1,5 @@
 #!/bin/bash
-# verify.sh — drive debutant fixtures end-to-end.
+# verify.sh — drive debaid fixtures end-to-end.
 #
 # Walks tests/fixtures/* and, for each fixture:
 #   - if   fixture/test.sh    exists, executes it.
@@ -15,7 +15,7 @@
 #   2  --strict and at least one fixture is a stub
 #
 # Environment:
-#   DEBUTANT_CLAUDE_CMD   command used by fixtures to invoke claude.
+#   DEBAID_CLAUDE_CMD   command used by fixtures to invoke claude.
 #                         Default: "claude --bare --print".
 #                         Exported for use by fixture test scripts.
 
@@ -44,7 +44,7 @@ if [[ ! -d "$FIXTURES" ]]; then
   exit 2
 fi
 
-export DEBUTANT_CLAUDE_CMD="${DEBUTANT_CLAUDE_CMD:-claude --bare --print}"
+export DEBAID_CLAUDE_CMD="${DEBAID_CLAUDE_CMD:-claude --bare --print}"
 
 pass=0
 fail=0

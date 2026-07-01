@@ -1,6 +1,6 @@
 # Shared context contract
 
-This file is the developer-facing spec that all debutant skills
+This file is the developer-facing spec that all debaid skills
 implement. It documents the runtime context schema, the verify
 script's output, the iteration-budget envelope, and the bail-out
 format.
@@ -18,13 +18,13 @@ for the contributor checklist.
 ## How context is passed
 
 The orchestrator (or a directly-invoked worker) writes a single
-JSON document to `${DEBUTANT_CONTEXT}` if that env var is set,
-else to `./.debutant/context.json` relative to the source tree.
+JSON document to `${DEBAID_CONTEXT}` if that env var is set,
+else to `./.debaid/context.json` relative to the source tree.
 
 Workers MUST:
 
-1. Check `${DEBUTANT_CONTEXT}` first.
-2. Fall back to `./.debutant/context.json`.
+1. Check `${DEBAID_CONTEXT}` first.
+2. Fall back to `./.debaid/context.json`.
 3. If neither exists, run
    `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh` and
    `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh` themselves,

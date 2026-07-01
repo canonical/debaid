@@ -31,7 +31,7 @@ between iteration attempts — see `shared-context.md`.
 
 ## Status
 
-**These fixtures are stubs (TODO).** First version of debutant
+**These fixtures are stubs (TODO).** First version of debaid
 ships with the directory layout and READMEs only. Real upstream
 trees and golden `debian/` outputs are a follow-up.
 
@@ -44,7 +44,7 @@ When promoting a fixture from stub to real:
 3. Add a `<fixture>/test.sh` driver that:
    - Copies upstream to a scratch dir.
    - Runs the relevant worker via
-     `${DEBUTANT_CLAUDE_CMD:-claude --bare --print} '/debutant:bootstrap ...'`.
+     `${DEBAID_CLAUDE_CMD:-claude --bare --print} '/debaid:bootstrap ...'`.
    - Diffs the produced `debian/` against `expected/debian/`.
    - Reports lintian/sbuild status.
 

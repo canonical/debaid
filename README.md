@@ -1,9 +1,9 @@
-# debutant
+# debaid
 
 Debian packaging automation skills for Claude Code, shipped as a
 plugin.
 
-`debutant` is a Claude Code plugin that helps a Debian / Ubuntu
+`debaid` is a Claude Code plugin that helps a Debian / Ubuntu
 package maintainer bootstrap, modernise, lint-clean, and add
 autopkgtest coverage to a package — while keeping the maintainer
 in the loop for every judgement call.
@@ -49,21 +49,21 @@ for the recipe.
 ## Layout
 
 ```
-debutant/
+debaid/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
 ├── workshop.yaml            # Canonical workshop runner setup
 ├── shared-context.md        # Developer-facing spec (schemas, bail-out)
 ├── scripts/                 # Probe scripts and verify.sh
 ├── skills/
-│   ├── run/                 # Orchestrator (/debutant:run)
+│   ├── run/                 # Orchestrator (/debaid:run)
 │   ├── bootstrap/           # New package from scratch
 │   ├── refresh/             # Modernise existing debian/
 │   ├── lintian/             # Fix lintian tags + justified overrides
 │   └── autopkgtest/         # Add or improve debian/tests/
 ├── docs/
 │   ├── house-style.md       # Prescriptive packaging choices, cited
-│   ├── developer.md         # How to extend debutant
+│   ├── developer.md         # How to extend debaid
 │   └── references/          # Short notes: build tools, DEPs, vcs, …
 │       └── languages/       # Per-language overlays (python, rust, go, perl)
 └── tests/
@@ -83,7 +83,7 @@ Load the plugin from a checkout for the current Claude Code
 session only. No marketplace needed:
 
 ```
-claude --plugin-dir /path/to/debutant
+claude --plugin-dir /path/to/debaid
 ```
 
 Inside Claude Code, `/reload-plugins` picks up edits without
@@ -102,7 +102,7 @@ cat > ~/.local/share/claude-marketplaces/local/.claude-plugin/marketplace.json <
   "name": "local",
   "owner": { "name": "$(git config user.name)" },
   "plugins": [
-    { "name": "debutant", "source": "/path/to/debutant" }
+    { "name": "debaid", "source": "/path/to/debaid" }
   ]
 }
 EOF
@@ -112,16 +112,16 @@ Then in Claude Code:
 
 ```
 /plugin marketplace add ~/.local/share/claude-marketplaces/local
-/plugin install debutant@local
+/plugin install debaid@local
 ```
 
-`/debutant:run` and friends are now available from any project.
-`/plugin update debutant@local` re-fetches after you pull new
+`/debaid:run` and friends are now available from any project.
+`/plugin update debaid@local` re-fetches after you pull new
 commits.
 
 If the install complains about an absolute `source`, fall back to
 a symlink: put the marketplace at the same level as a symlink to
-the plugin checkout, and set `source` to `"./debutant"` (relative).
+the plugin checkout, and set `source` to `"./debaid"` (relative).
 
 ### Team-shared (private git marketplace)
 
@@ -130,10 +130,10 @@ Push the marketplace JSON above to a private git repo. The plugin
 
 ```
 /plugin marketplace add <org>/<marketplace-repo>
-/plugin install debutant@<marketplace-name>
+/plugin install debaid@<marketplace-name>
 ```
 
-For projects that should auto-load debutant on first open, add
+For projects that should auto-load debaid on first open, add
 this to the project's `.claude/settings.json`:
 
 ```json
@@ -143,7 +143,7 @@ this to the project's `.claude/settings.json`:
       "source": { "source": "github", "repo": "<org>/<marketplace-repo>" }
     }
   },
-  "enabledPlugins": { "debutant@<marketplace-name>": true }
+  "enabledPlugins": { "debaid@<marketplace-name>": true }
 }
 ```
 
@@ -153,26 +153,26 @@ From within a source tree:
 
 ```
 # Full pipeline
-/debutant:run
+/debaid:run
 
 # Single phase
-/debutant:run --only=lintian
-/debutant:lintian
+/debaid:run --only=lintian
+/debaid:lintian
 
 # Phase subset
-/debutant:run --only=refresh,lintian --skip=autopkgtest
+/debaid:run --only=refresh,lintian --skip=autopkgtest
 
 # Dry-run (refresh defaults to this anyway)
-/debutant:run --dry-run
+/debaid:run --dry-run
 
 # Custom house style
-/debutant:run --house-style=/path/to/team-style.md
+/debaid:run --house-style=/path/to/team-style.md
 
 # Disable reference corpus
-/debutant:run --reference=none
+/debaid:run --reference=none
 
 # Workshop mode: skip per-phase confirmation gates
-/debutant:run --yes
+/debaid:run --yes
 ```
 
 ## Design

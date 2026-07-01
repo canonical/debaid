@@ -3,20 +3,20 @@ name: bootstrap
 description: Create a fresh debian/ directory for an unpackaged upstream source tree. Use when source.has_debian_dir is false. Output is builds-once, lintian-respectable, UNRELEASED packaging ready for maintainer review. Debian-first, Ubuntu overlay.
 ---
 
-# debutant:bootstrap
+# debaid:bootstrap
 
 Create a complete `debian/` directory from scratch for an upstream
 source tree that has none.
 
 ## Preconditions
 
-- A context JSON exists at `./.debutant/context.json`. If missing,
+- A context JSON exists at `./.debaid/context.json`. If missing,
   build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
   and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
   outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
   full schema).
 - `source.has_debian_dir == false`. If `true`, refuse and suggest
-  `/debutant:refresh` instead.
+  `/debaid:refresh` instead.
 - A maintainer identity is available via `user.debfullname` and
   `user.debemail`. If either is missing, ask the maintainer before
   proceeding.
@@ -105,13 +105,13 @@ Pulled from context unless noted:
 | Variable | Source |
 |---|---|
 | `source`, `section`, `priority`, `binary`, `architecture`, `short_description` | Sanity-check step (ask the maintainer or derive from upstream metadata; never invent). |
-| `debfullname`, `debemail` | `user.debfullname`, `user.debemail` from `${DEBUTANT_CONTEXT}` / `./.debutant/context.json`. |
+| `debfullname`, `debemail` | `user.debfullname`, `user.debemail` from `${DEBAID_CONTEXT}` / `./.debaid/context.json`. |
 | `homepage`, `vcs_browser`, `vcs_git` | Sanity-check / derived from upstream metadata. |
 | `upstream_name`, `upstream_contact`, `upstream_copyright_years`, `upstream_copyright_holder`, `upstream_license_short` | License-discovery step (`licensecheck -r .` plus a manual read of file headers). `upstream_license_short` is the SPDX-style short identifier (e.g. `MIT`, `Apache-2.0`, `GPL-2+`). |
 | `packaging_year` | `date +%Y` at render time. |
 | `pristine_tar` | `True` or `False` — `False` for a fresh bootstrap unless the maintainer asks for pristine-tar. |
 | `template_name`, `template_specific_flags`, `watch_source_fields` | See watch v5 reference for the field set. |
-| `language` | `source.language` from `${DEBUTANT_CONTEXT}` / `./.debutant/context.json`. Drives the template dispatch above. |
+| `language` | `source.language` from `${DEBAID_CONTEXT}` / `./.debaid/context.json`. Drives the template dispatch above. |
 | `pybuild_name` | Used by `rules.python.tmpl`. The upstream *import* name (what you write in `import …`), not the source-package name. See `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/python.md` § "Package naming". |
 
 ### List flags
@@ -130,7 +130,7 @@ and a wrong default ripples into every later run.
 - A populated `debian/$pkg.install` unless the build system makes
   the install layout unambiguous (e.g. a single binary going to
   `/usr/bin/`). Otherwise, defer to the maintainer.
-- A populated `debian/tests/` — that's `/debutant:autopkgtest`.
+- A populated `debian/tests/` — that's `/debaid:autopkgtest`.
 - `debian/upstream/metadata` — propose it as a follow-up; do not
   bootstrap it (DEP-12 fields need maintainer verification).
 - `debian/upstream/signing-key.asc` — you cannot verify a key;
@@ -197,7 +197,7 @@ and a wrong default ripples into every later run.
 
 ## Hard rules
 
-Suite-wide (apply to every debutant skill):
+Suite-wide (apply to every debaid skill):
 
 - Never invoke `dput`, `debrelease`, `dgit push`, or any upload
   command.

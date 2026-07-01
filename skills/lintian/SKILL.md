@@ -3,14 +3,14 @@ name: lintian
 description: Resolve lintian -EvIL +pedantic output on a Debian source package by classifying each tag and producing the right fix — packaging change, DEP-3 quilt patch, or justified override with a comment. Bails to the maintainer after 3 attempts on the same tag. Never blanket-suppresses.
 ---
 
-# debutant:lintian
+# debaid:lintian
 
 Drive a package toward `lintian -EvIL +pedantic` clean, or
 justified-overrides-only.
 
 ## Preconditions
 
-- A context JSON exists at `./.debutant/context.json`. If missing,
+- A context JSON exists at `./.debaid/context.json`. If missing,
   build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
   and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
   outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
@@ -36,7 +36,7 @@ worse trade-offs.
 
 ## Hard rules
 
-Suite-wide (apply to every debutant skill):
+Suite-wide (apply to every debaid skill):
 
 - Never invoke `dput`, `debrelease`, `dgit push`, or any upload
   command.

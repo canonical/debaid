@@ -1,5 +1,5 @@
 #!/bin/bash
-# detect-source.sh — emit JSON describing a source tree for debutant workers.
+# detect-source.sh — emit JSON describing a source tree for debaid workers.
 #
 # Usage: detect-source.sh [PATH]
 #   PATH defaults to the current working directory.

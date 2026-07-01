@@ -1,4 +1,4 @@
-# debutant — house style
+# debaid — house style
 
 **Version**: 2 · **Last reviewed**: 2026-05-13 · **Next review due**: 2026-08-13
 
@@ -140,7 +140,7 @@ maintainer can override the active style by passing
 
 ## Patches
 
-Debutant assumes a `git-buildpackage` / DEP-14 workflow throughout.
+Debaid assumes a `git-buildpackage` / DEP-14 workflow throughout.
 Workers operating on a package that is **not** packaged with `gbp`
 (no `debian/gbp.conf`, no DEP-14 branch layout) MUST bail to the
 maintainer with a clear message rather than try to translate the

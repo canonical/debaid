@@ -1,4 +1,4 @@
-# Rust — debutant overlay
+# Rust — debaid overlay
 
 Debian Rust packaging splits sharply into two paths depending on
 whether the upstream is a **library crate** (consumed by other
@@ -101,7 +101,7 @@ the dependency graph leaf-first; the Rust team's
 ## Application binaries → dh-cargo
 
 For Rust applications (a CLI tool or a daemon) the standard
-debutant flow applies; `rules.rust.tmpl` renders the right
+debaid flow applies; `rules.rust.tmpl` renders the right
 `debian/rules`.
 
 ### debian/control essentials
@@ -193,7 +193,7 @@ template.
 The refresh skill applies these when `source.language ==
 "rust"` and the package is an **application binary** —
 debcargo-managed libraries are refreshed via the Rust team's
-workflow, not via debutant:
+workflow, not via debaid:
 
 - `dh-cargo`, `cargo`, `rustc` present in `Build-Depends`.
 - `--buildsystem=cargo` used in `debian/rules` (not the legacy

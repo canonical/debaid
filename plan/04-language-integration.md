@@ -2,7 +2,7 @@
 
 ## Context
 
-debutant ships as a phase-based plugin: `run` orchestrates
+debaid ships as a phase-based plugin: `run` orchestrates
 `bootstrap` / `refresh` / `lintian` / `autopkgtest`, all
 coordinated by a shared context JSON and a prescriptive
 `docs/house-style.md`. The plugin is **language-agnostic by
@@ -36,7 +36,7 @@ count or duplicating knowledge**.
    `rules.perl.tmpl`). Bootstrap selects by `source.language`.
 4. **Workers** — bootstrap, refresh, autopkgtest. `lintian`
    deferred.
-5. **License** — no licence chosen yet for debutant; commit 1
+5. **License** — no licence chosen yet for debaid; commit 1
    ships a placeholder LICENSE. The clean-redesign approach
    means licence selection is independent of this plan.
 6. **Fixtures** — `tests/fixtures/*` are stubs by design. A
@@ -184,7 +184,7 @@ pkg-perl conventions + DRAFT-marker status (Perl).
 ## Status: complete
 
 All eleven commits landed. The language-overlay pass is
-shipped in `debutant` 0.2.0.
+shipped in `debaid` 0.2.0.
 
 ## Resume notes
 

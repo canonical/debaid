@@ -3,13 +3,13 @@ name: autopkgtest
 description: Add or improve debian/tests/ for as-installed Debian package testing per DEP-8. Detects package shape (library, daemon, CLI tool), proposes minimal Restrictions, runs tests with the lightest virt backend available. Asks the maintainer before enabling isolation-container or needs-root.
 ---
 
-# debutant:autopkgtest
+# debaid:autopkgtest
 
 Add or improve `debian/tests/` for as-installed testing.
 
 ## Preconditions
 
-- A context JSON exists at `./.debutant/context.json`. If missing,
+- A context JSON exists at `./.debaid/context.json`. If missing,
   build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
   and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
   outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
@@ -129,7 +129,7 @@ relevant `languages/<lang>.md` for ecosystem nuances.
 
 ## Hard rules
 
-Suite-wide (apply to every debutant skill):
+Suite-wide (apply to every debaid skill):
 
 - Never invoke `dput`, `debrelease`, `dgit push`, or any upload
   command.
