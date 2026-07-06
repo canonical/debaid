@@ -1,2 +1,7 @@
 .envrc
 .debaid/
+
+
+# Added by cargo
+
+/target

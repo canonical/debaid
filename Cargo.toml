@@ -1,0 +1,18 @@
+[package]
+name = "debaid"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Debian packaging assistant for improving package health"
+repository = "https://github.com/canonical/debaid"
+license = "GPL-3.0-only"
+
+[dependencies]
+anyhow = "1.0.103"
+clap = { version = "4.6.1", features = ["derive"] }
+thiserror = "2.0.18"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+
+[lints.rust]
+unsafe_code = "forbid"
