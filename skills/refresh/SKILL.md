@@ -3,7 +3,7 @@ name: refresh
 description: Modernise an existing debian/ directory to current house style — compat bump, Standards-Version, R³, dh-sequence migration, wrap-and-sort, watch v5, DEP-5 normalisation, M-A audit, Salsa-CI. Default dry-run. The most dangerous worker; treat the maintainer's prior choices with respect.
 ---
 
-# debaid:refresh
+# debaid refresh
 
 Modernise an existing `debian/` directory to the active house style.
 
@@ -15,12 +15,12 @@ maintainer accept or reject each one. **Default mode is dry-run.**
 ## Preconditions
 
 - A context JSON exists at `./.debaid/context.json`. If missing,
-  build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
-  and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
-  outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
+  build it: run `${DEBAID_ROOT}/scripts/detect-source.sh`
+  and `${DEBAID_ROOT}/scripts/tooling-probe.sh`, merge their
+  outputs (see `${DEBAID_ROOT}/shared-context.md` for the
   full schema).
 - `source.has_debian_dir == true`. If `false`, refuse and suggest
-  `/debaid:bootstrap`.
+  `debaid bootstrap`.
 
 ## Hard rules
 
@@ -88,10 +88,10 @@ flag-driven ones above. These checks surface in the audit report
 enables the relevant generic flag (`--watch-v5`, `--dh-sequence`,
 etc.) — they do not introduce new flags.
 
-- **Python**: see `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/python.md` § "Common refresh checks". Surface: missing `dh-sequence-python3`, legacy `X-Python-Version` cruft, `debian/watch` not on v5 + `Template: pypi`, missing `Testsuite: autopkgtest-pkg-python` on library packages, Python 2 build-dep residue (`python`, `python-dev`, `python-minimal`), missing `${python3:Depends}` substvar in binary stanzas.
-- **Rust**: see `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/rust.md` § "Common refresh checks". Application binaries: `dh-cargo`, `cargo`, `rustc` present in `Build-Depends`; `--buildsystem=cargo` (not legacy `--with cargo`); hardening flags on. Library crates: surface as a finding and recommend the debcargo workflow rather than refreshing a hand-written `debian/`.
-- **Go**: see `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/golang.md` § "Common refresh checks". Surface: missing `dh-sequence-golang` (or legacy `dh-golang` + `--with golang`), missing `golang-any`, missing `XS-Go-Import-Path:` in the source stanza, missing `--buildsystem=golang` in `debian/rules`, missing `Built-Using: ${misc:Built-Using}` on application binary stanzas, `debian/watch` not on v5 + `Template: github`/`gitlab`, unstripped `vendor/` directory.
-- **Perl**: see `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/perl.md` § "Common refresh checks" (note: that file is DRAFT pending pkg-perl review). Surface: `debhelper-compat (= 13)` + `perl` in `Build-Depends`, no legacy `${perl:Provides}`, `${perl:Depends}` substvar in binary stanzas (`${shlibs:Depends}` for XS), `Section: perl` on library binaries, `debian/watch` not on v5 + `Template: metacpan`, missing `Testsuite: autopkgtest-pkg-perl` on libraries without a hand-rolled `debian/tests/`, `Architecture` matches XS-vs-pure-Perl reality.
+- **Python**: see `${DEBAID_ROOT}/docs/references/languages/python.md` § "Common refresh checks". Surface: missing `dh-sequence-python3`, legacy `X-Python-Version` cruft, `debian/watch` not on v5 + `Template: pypi`, missing `Testsuite: autopkgtest-pkg-python` on library packages, Python 2 build-dep residue (`python`, `python-dev`, `python-minimal`), missing `${python3:Depends}` substvar in binary stanzas.
+- **Rust**: see `${DEBAID_ROOT}/docs/references/languages/rust.md` § "Common refresh checks". Application binaries: `dh-cargo`, `cargo`, `rustc` present in `Build-Depends`; `--buildsystem=cargo` (not legacy `--with cargo`); hardening flags on. Library crates: surface as a finding and recommend the debcargo workflow rather than refreshing a hand-written `debian/`.
+- **Go**: see `${DEBAID_ROOT}/docs/references/languages/golang.md` § "Common refresh checks". Surface: missing `dh-sequence-golang` (or legacy `dh-golang` + `--with golang`), missing `golang-any`, missing `XS-Go-Import-Path:` in the source stanza, missing `--buildsystem=golang` in `debian/rules`, missing `Built-Using: ${misc:Built-Using}` on application binary stanzas, `debian/watch` not on v5 + `Template: github`/`gitlab`, unstripped `vendor/` directory.
+- **Perl**: see `${DEBAID_ROOT}/docs/references/languages/perl.md` § "Common refresh checks" (note: that file is DRAFT pending pkg-perl review). Surface: `debhelper-compat (= 13)` + `perl` in `Build-Depends`, no legacy `${perl:Provides}`, `${perl:Depends}` substvar in binary stanzas (`${shlibs:Depends}` for XS), `Section: perl` on library binaries, `debian/watch` not on v5 + `Template: metacpan`, missing `Testsuite: autopkgtest-pkg-perl` on libraries without a hand-rolled `debian/tests/`, `Architecture` matches XS-vs-pure-Perl reality.
 
 When `source.language` is not in this list, no language-aware
 checks fire and the audit is purely flag-driven.
@@ -125,7 +125,7 @@ checks fire and the audit is purely flag-driven.
    anyway when not `--yes`.
 5. **Apply phase** (only if maintainer approves). Write the diff
    to the tree. Re-run `wrap-and-sort -ast` if it was enabled. Run
-   `${CLAUDE_PLUGIN_ROOT}/scripts/verify.sh` to confirm the result
+   `${DEBAID_ROOT}/scripts/verify.sh` to confirm the result
    still builds and lintian is no worse than before. Honour the
    iteration-budget envelope.
 6. **Report.** Files changed, build/lint status, any items
@@ -141,5 +141,5 @@ checks fire and the audit is purely flag-driven.
   can't classify with confidence).
 
 Use the bail-out summary format from
-`${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "Bail-out summary
+`${DEBAID_ROOT}/shared-context.md` § "Bail-out summary
 format".

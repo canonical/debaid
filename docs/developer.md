@@ -3,24 +3,26 @@
 How to extend `debaid` with a new worker, fixture, or reference
 doc.
 
-`debaid` is packaged as a Claude Code plugin. The plugin
-manifest is `.claude-plugin/plugin.json`; everything else
-(skills, scripts, docs, tests) sits at the plugin root. Skills
-become slash commands under the `/debaid:` namespace —
-`skills/lintian/SKILL.md` ⇒ `/debaid:lintian`, and so on. The
-orchestrator lives at `skills/run/` and is invoked as
-`/debaid:run`.
+`debaid` is a standalone CLI. The Rust binary under `src/` owns
+the deterministic work and drives an [opencode](https://opencode.ai)
+agent for the judgement calls. Everything the agent reads
+(skills, scripts, docs, tests) sits under the installation root,
+which the binary exports to the agent as `${DEBAID_ROOT}`. Each
+worker prompt lives at `skills/<phase>/SKILL.md` and backs the
+matching subcommand — `skills/lintian/SKILL.md` ⇒ `debaid
+lintian`, and so on. The orchestrator lives at `skills/run/` and
+backs `debaid run`.
 
 ## Adding a new worker
 
-A worker is a Claude Code skill — a directory under `skills/`
+A worker is an agent prompt — a directory under `skills/`
 containing at least `SKILL.md`.
 
 Steps:
 
 1. **Pick a name.** Workers are named after their phase:
    `bootstrap`, `refresh`, `lintian`, `autopkgtest`. Pick a short
-   verb or noun; the slash command will be `/debaid:<name>`.
+   verb or noun; the subcommand will be `debaid <name>`.
 2. **Create the skill directory.**
    ```
    mkdir -p skills/<name>
@@ -48,22 +50,22 @@ Steps:
    adds phase-specific rules. The canonical list lives in
    `shared-context.md`. If you change one rule, update all five
    worker `SKILL.md` files and the spec file in the same commit.
-5. **Reference shared assets by `${CLAUDE_PLUGIN_ROOT}`.** The
-   plugin runtime substitutes that variable before the LLM sees
-   the prompt. Always use it; never use `../<sibling-skill>/...`
-   — that path will not resolve after the plugin is installed.
+5. **Reference shared assets by `${DEBAID_ROOT}`.** debaid
+   substitutes that variable before the agent sees the prompt.
+   Always use it; never use `../<sibling-skill>/...` — that path
+   will not resolve once debaid is installed system-wide.
 
    Common references:
-   - `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
-   - `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`
-   - `${CLAUDE_PLUGIN_ROOT}/scripts/verify.sh`
-   - `${CLAUDE_PLUGIN_ROOT}/shared-context.md`
-   - `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`
-   - `${CLAUDE_PLUGIN_ROOT}/docs/references/*.md`
+   - `${DEBAID_ROOT}/scripts/detect-source.sh`
+   - `${DEBAID_ROOT}/scripts/tooling-probe.sh`
+   - `${DEBAID_ROOT}/scripts/verify.sh`
+   - `${DEBAID_ROOT}/shared-context.md`
+   - `${DEBAID_ROOT}/docs/house-style.md`
+   - `${DEBAID_ROOT}/docs/references/*.md`
 6. **Cite the house style.** Every prescriptive choice in the
    worker output must trace back to
-   `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md` or
-   `${CLAUDE_PLUGIN_ROOT}/docs/references/*.md`.
+   `${DEBAID_ROOT}/docs/house-style.md` or
+   `${DEBAID_ROOT}/docs/references/*.md`.
 7. **Update the orchestrator.** Add the phase to the dispatch
    table in `skills/run/SKILL.md`.
 8. **Add a fixture** under `tests/fixtures/` that exercises the
@@ -125,7 +127,7 @@ of `rules.python.tmpl`.
 
 1. **Pick a language code.** This is the value `source.language`
    will hold. The current enum lives in
-   `${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "JSON schema
+   `${DEBAID_ROOT}/shared-context.md` § "JSON schema
    (v1)". If your language is not in that enum, extend it
    first.
 
@@ -164,7 +166,7 @@ of `rules.python.tmpl`.
      `dh-make-golang`, `py2dsc`, etc. are comparison runs in
      `/tmp`, not the source of truth.
    - **sbuild-first verification.** Refer to
-     `${CLAUDE_PLUGIN_ROOT}/scripts/verify.sh`, not
+     `${DEBAID_ROOT}/scripts/verify.sh`, not
      `dpkg-buildpackage -us -uc`, as the primary check.
 
 4. **Add the rules template.** Create
@@ -269,23 +271,26 @@ lives in the template — the discipline is here.
 ## Testing changes locally
 
 ```
-# Load the plugin from this checkout for the current session:
-claude --plugin-dir /path/to/debaid
-
-# Then invoke a worker as a slash command:
-/debaid:lintian
+# Run a worker straight from this checkout:
+export DEBAID_ROOT="$PWD"
+cargo run -- lintian
 ```
 
-After editing a skill, run `/reload-plugins` to pick up changes
-without restarting Claude Code.
+Worker prompts are read from `${DEBAID_ROOT}/skills/` on every
+invocation, so an edited `SKILL.md` takes effect on the next run
+— nothing to reinstall or restart.
 
-The workshop's `claude-exec` action wires the equivalent
+The workshop's `debaid-exec` action wires the equivalent
 non-interactive form — see `workshop.yaml`.
 
-## Plugin manifest
+## Agent runtime
 
-`.claude-plugin/plugin.json` carries the plugin name, description,
-version, and author. The `name` field controls the slash-command
-namespace (`/debaid:<skill>`). Bump `version` on every release
-that ships to users — Claude Code uses it to decide whether to
-re-fetch the plugin.
+debaid delegates the judgement calls to `opencode`, which must be
+on `PATH`. Model and endpoint are opencode's own configuration;
+debaid pins only the deny-list (`opencode.json`) and the prompts.
+See `.envrc.example` for an OpenRouter-backed setup.
+
+## Release metadata
+
+`Cargo.toml` carries the crate name, description, version, and
+license. Bump `version` on every release that ships to users.

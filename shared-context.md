@@ -8,7 +8,7 @@ format.
 Worker `SKILL.md` files inline the parts they need to attend to at
 every invocation (hard rules, the short reactive templates). They
 reference this file by absolute path
-(`${CLAUDE_PLUGIN_ROOT}/shared-context.md`) for the longer
+(`${DEBAID_ROOT}/shared-context.md`) for the longer
 schemas, which they `Read` only when consuming them.
 
 If you change a hard rule or the bail-out format here, update all
@@ -26,8 +26,8 @@ Workers MUST:
 1. Check `${DEBAID_CONTEXT}` first.
 2. Fall back to `./.debaid/context.json`.
 3. If neither exists, run
-   `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh` and
-   `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh` themselves,
+   `${DEBAID_ROOT}/scripts/detect-source.sh` and
+   `${DEBAID_ROOT}/scripts/tooling-probe.sh` themselves,
    then merge their outputs.
 
 ## JSON schema (v1)
@@ -106,7 +106,7 @@ Workers MUST:
 
 ## Verify-script output schema (v1)
 
-`${CLAUDE_PLUGIN_ROOT}/scripts/verify.sh` is the iteration-loop primitive
+`${DEBAID_ROOT}/scripts/verify.sh` is the iteration-loop primitive
 workers consult between fix attempts. It runs a build (sbuild or
 dpkg-buildpackage) and lintian, then emits a single JSON snapshot.
 The script is **stateless**: workers hold previous snapshots in

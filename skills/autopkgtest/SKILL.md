@@ -3,16 +3,16 @@ name: autopkgtest
 description: Add or improve debian/tests/ for as-installed Debian package testing per DEP-8. Detects package shape (library, daemon, CLI tool), proposes minimal Restrictions, runs tests with the lightest virt backend available. Asks the maintainer before enabling isolation-container or needs-root.
 ---
 
-# debaid:autopkgtest
+# debaid autopkgtest
 
 Add or improve `debian/tests/` for as-installed testing.
 
 ## Preconditions
 
 - A context JSON exists at `./.debaid/context.json`. If missing,
-  build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
-  and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
-  outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
+  build it: run `${DEBAID_ROOT}/scripts/detect-source.sh`
+  and `${DEBAID_ROOT}/scripts/tooling-probe.sh`, merge their
+  outputs (see `${DEBAID_ROOT}/shared-context.md` for the
   full schema).
 - `source.has_debian_dir == true`.
 - The package builds (you don't need to verify; the orchestrator
@@ -68,8 +68,8 @@ to encode by hand.
 
 | `source.language` | `Testsuite:` value | Notes |
 |---|---|---|
-| `python` | `autopkgtest-pkg-python` | Generates `python3 -c "import <name>"` per `python3-*` binary; the import name is derived from the package suffix. Set `X-Python3-Module:` when it diverges. See `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/python.md` § "autopkgtest". |
-| `perl` | `autopkgtest-pkg-perl` | Runs `prove -v` against upstream's test suite using the installed package; for XS modules also verifies the compiled `.so` loads. See `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/perl.md` § "autopkgtest" (DRAFT). |
+| `python` | `autopkgtest-pkg-python` | Generates `python3 -c "import <name>"` per `python3-*` binary; the import name is derived from the package suffix. Set `X-Python3-Module:` when it diverges. See `${DEBAID_ROOT}/docs/references/languages/python.md` § "autopkgtest". |
+| `perl` | `autopkgtest-pkg-perl` | Runs `prove -v` against upstream's test suite using the installed package; for XS modules also verifies the compiled `.so` loads. See `${DEBAID_ROOT}/docs/references/languages/perl.md` § "autopkgtest" (DRAFT). |
 | `ruby` | `autopkgtest-pkg-ruby` | Ruby overlay deferred; the generator works without an overlay. |
 | `nodejs` | `autopkgtest-pkg-nodejs` | No overlay planned in this pass; the generator works without one. |
 
@@ -163,5 +163,5 @@ Phase-specific (autopkgtest):
   the test (env issue, broken backend).
 
 Use the bail-out summary format from
-`${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "Bail-out summary
+`${DEBAID_ROOT}/shared-context.md` § "Bail-out summary
 format".

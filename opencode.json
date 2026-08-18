@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "bash": {
+      "dput *": "deny",
+      "dput-ng *": "deny",
+      "debrelease *": "deny",
+      "dgit push *": "deny",
+      "dgit push-source *": "deny",
+      "git push *": "deny",
+      "rm -rf *": "deny",
+      "rm -fr *": "deny",
+      "git clean -fdx *": "deny",
+      "git clean -fxd *": "deny",
+      "dch -r *": "deny",
+      "dch --release *": "deny",
+      "dch -D *": "deny",
+      "dch --distribution *": "deny"
+    }
+  }
+}

@@ -3,7 +3,7 @@ name: bootstrap
 description: Create a fresh debian/ directory for an unpackaged upstream source tree. Use when source.has_debian_dir is false. Output is builds-once, lintian-respectable, UNRELEASED packaging ready for maintainer review. Debian-first, Ubuntu overlay.
 ---
 
-# debaid:bootstrap
+# debaid bootstrap
 
 Create a complete `debian/` directory from scratch for an upstream
 source tree that has none.
@@ -11,12 +11,12 @@ source tree that has none.
 ## Preconditions
 
 - A context JSON exists at `./.debaid/context.json`. If missing,
-  build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
-  and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
-  outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
+  build it: run `${DEBAID_ROOT}/scripts/detect-source.sh`
+  and `${DEBAID_ROOT}/scripts/tooling-probe.sh`, merge their
+  outputs (see `${DEBAID_ROOT}/shared-context.md` for the
   full schema).
 - `source.has_debian_dir == false`. If `true`, refuse and suggest
-  `/debaid:refresh` instead.
+  `debaid refresh` instead.
 - A maintainer identity is available via `user.debfullname` and
   `user.debemail`. If either is missing, ask the maintainer before
   proceeding.
@@ -30,7 +30,7 @@ A minimal but complete `debian/` directory with:
   or more binary stanzas. **Omit the `Priority:` field unless the
   package is `required`/`important`/`standard`** — Policy 4.7.3
   deprecated specifying the default (`optional`). `Standards-Version`
-  is set from `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md` (currently
+  is set from `${DEBAID_ROOT}/docs/house-style.md` (currently
   4.7.4). Long `Description:` is left as `<INSERT LONG DESCRIPTION HERE>`
   for the maintainer to fill in — NEVER invent prose marketing copy.
 - `debian/changelog` — created with `dch --create
@@ -49,12 +49,12 @@ A minimal but complete `debian/` directory with:
   `debian/upstream/signing-key.asc` exists; otherwise `pgpmode=none`.
   For git-only upstreams, use `mode=git`.
 - `debian/salsa-ci.yml` — include the pinned template version from
-  `${CLAUDE_PLUGIN_ROOT}/docs/references/salsa-ci.md`.
+  `${DEBAID_ROOT}/docs/references/salsa-ci.md`.
 - `debian/gbp.conf` — DEP-14 layout (`debian-branch = debian/unstable`,
   `upstream-branch = upstream/latest`, `pristine-tar = True` if the
   package will use it).
 
-Templates live in `${CLAUDE_PLUGIN_ROOT}/skills/bootstrap/templates/`.
+Templates live in `${DEBAID_ROOT}/skills/bootstrap/templates/`.
 Render each through the house-style rules; do not copy verbatim.
 
 ## Template render flags
@@ -79,11 +79,11 @@ language-specific variant instead:
 | anything else | `rules.tmpl` |
 
 The language-specific templates live alongside `rules.tmpl` in
-`${CLAUDE_PLUGIN_ROOT}/skills/bootstrap/templates/` and inherit the
+`${DEBAID_ROOT}/skills/bootstrap/templates/` and inherit the
 flags below. They land in later commits as each language overlay is
 written; until a given template exists the dispatch falls back to
 `rules.tmpl` for that language. The matching reference doc, when it
-exists, lives at `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/<lang>.md`
+exists, lives at `${DEBAID_ROOT}/docs/references/languages/<lang>.md`
 and the build-deps discovery step (process step 4) links into it.
 
 Rust library crates do not go through this dispatch at all — see
@@ -96,7 +96,7 @@ Rust library crates do not go through this dispatch at all — see
 | `priority_nondefault` | Target `Priority:` is one of `required`, `important`, `standard`. | Otherwise the field is omitted (Policy 4.7.3 §5.6.6 — `optional` is the default and should not be stated). Default behaviour for a fresh bootstrap is `false`. |
 | `has_compiled_binaries` | `source.language` ∈ `{c, cpp, rust, go, haskell, ada, fortran}` — anything that produces native object code. | Gates the `DEB_BUILD_MAINT_OPTIONS = hardening=+all` export in `rules.tmpl`. Pure-Python/Perl/data packages get nothing. |
 | `has_signing_key` | `debian/upstream/signing-key.asc` exists in the source tree. | Gates `Pgp-Mode: auto` vs `Pgp-Mode: none` in `watch.tmpl`. Check the path explicitly; do not infer from upstream metadata. |
-| `has_template` | The upstream release pattern matches a known watch v5 `Template:` (`github`, `gitlab`, `pypi`, `sourceforge`, `cpan`, `git`). | When true, emit `Template: <name>` plus the template's required fields. When false, fall back to raw v5 fields. See `${CLAUDE_PLUGIN_ROOT}/docs/references/watch-v5.md`. |
+| `has_template` | The upstream release pattern matches a known watch v5 `Template:` (`github`, `gitlab`, `pypi`, `sourceforge`, `cpan`, `git`). | When true, emit `Template: <name>` plus the template's required fields. When false, fall back to raw v5 fields. See `${DEBAID_ROOT}/docs/references/watch-v5.md`. |
 
 ### Scalar values
 
@@ -112,7 +112,7 @@ Pulled from context unless noted:
 | `pristine_tar` | `True` or `False` — `False` for a fresh bootstrap unless the maintainer asks for pristine-tar. |
 | `template_name`, `template_specific_flags`, `watch_source_fields` | See watch v5 reference for the field set. |
 | `language` | `source.language` from `${DEBAID_CONTEXT}` / `./.debaid/context.json`. Drives the template dispatch above. |
-| `pybuild_name` | Used by `rules.python.tmpl`. The upstream *import* name (what you write in `import …`), not the source-package name. See `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/python.md` § "Package naming". |
+| `pybuild_name` | Used by `rules.python.tmpl`. The upstream *import* name (what you write in `import …`), not the source-package name. See `${DEBAID_ROOT}/docs/references/languages/python.md` § "Package naming". |
 
 ### List flags
 
@@ -130,7 +130,7 @@ and a wrong default ripples into every later run.
 - A populated `debian/$pkg.install` unless the build system makes
   the install layout unambiguous (e.g. a single binary going to
   `/usr/bin/`). Otherwise, defer to the maintainer.
-- A populated `debian/tests/` — that's `/debaid:autopkgtest`.
+- A populated `debian/tests/` — that's `debaid autopkgtest`.
 - `debian/upstream/metadata` — propose it as a follow-up; do not
   bootstrap it (DEP-12 fields need maintainer verification).
 - `debian/upstream/signing-key.asc` — you cannot verify a key;
@@ -156,35 +156,35 @@ and a wrong default ripples into every later run.
    Build-Depends template:
 
    - **Python** (`pyproject.toml` / `setup.py` / `setup.cfg`):
-     `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/python.md`
+     `${DEBAID_ROOT}/docs/references/languages/python.md`
      § "debian/control essentials".
    - **Rust application binaries** (`Cargo.toml` with `[[bin]]`):
-     `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/rust.md`
+     `${DEBAID_ROOT}/docs/references/languages/rust.md`
      § "Application binaries → dh-cargo". For Rust **library
      crates** (`[lib]`, no `[[bin]]`), see the "Rust library
      crate" entry in § "Bail-out conditions" below.
    - **Go** (`go.mod`):
-     `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/golang.md`
+     `${DEBAID_ROOT}/docs/references/languages/golang.md`
      § "debian/control essentials". Library vs application
      shape is decided per § "Library packages vs. application
      binaries".
    - **Perl** (`Makefile.PL` / `Build.PL` / `META.json` /
      `META.yml`):
-     `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/perl.md`
+     `${DEBAID_ROOT}/docs/references/languages/perl.md`
      § "debian/control essentials". Note that file is marked
      DRAFT pending pkg-perl maintainer review.
 5. **Generate `debian/`** from templates + computed values.
 6. **`wrap-and-sort -ast`** on the result.
-7. **First verify.** Call `${CLAUDE_PLUGIN_ROOT}/scripts/verify.sh`
+7. **First verify.** Call `${DEBAID_ROOT}/scripts/verify.sh`
    to run sbuild (or fall back to dpkg-buildpackage) + lintian.
    Enter the iteration-budget loop (see
-   `${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "Iteration-budget
+   `${DEBAID_ROOT}/shared-context.md` § "Iteration-budget
    envelope"). If neither builder is available, report and stop —
    the maintainer must set up a build environment before bootstrap
    verification can complete.
    If the verify failure is an upstream source issue and a patch is
    the right fix, follow the patches workflow in
-   `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md` § "Patches" — author
+   `${DEBAID_ROOT}/docs/house-style.md` § "Patches" — author
    via `gbp pq`, never write to `debian/patches/` directly. Patch
    authoring at bootstrap time is rare; prefer bailing to the
    maintainer over guessing a patch.
@@ -234,9 +234,9 @@ Phase-specific (bootstrap):
   and no `[[bin]]`). Bootstrap should hand off to `debcargo`,
   which manages its own packaging layout, rather than render a
   fresh `debian/` from templates. See
-  `${CLAUDE_PLUGIN_ROOT}/docs/references/languages/rust.md`
+  `${DEBAID_ROOT}/docs/references/languages/rust.md`
   § "Library crates → debcargo" for the recommended workflow.
 
 Use the bail-out summary format from
-`${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "Bail-out summary
+`${DEBAID_ROOT}/shared-context.md` § "Bail-out summary
 format".

@@ -10,7 +10,7 @@ Debian Perl packaging is handled by the Debian Perl Group
 (pkg-perl). Most CPAN modules build with a plain `dh $@` —
 Perl-specific debhelper handlers ship with `debhelper` itself,
 and `dh` auto-detects `Makefile.PL` vs `Build.PL`. Read
-alongside `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`; this
+alongside `${DEBAID_ROOT}/docs/house-style.md`; this
 file documents what is *Perl-specific*.
 
 Authoritative upstream sources:
@@ -164,7 +164,7 @@ Common overrides — only when needed:
 ## debian/watch (v5 with metacpan template)
 
 For CPAN-tracked modules, use the `metacpan` template — see
-`${CLAUDE_PLUGIN_ROOT}/docs/references/watch-v5.md`:
+`${DEBAID_ROOT}/docs/references/watch-v5.md`:
 
 ```
 version=5

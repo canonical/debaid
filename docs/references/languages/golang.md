@@ -2,7 +2,7 @@
 
 Debian Go packaging is centralised around the `dh-golang`
 build system and the `dh-make-golang` initial-conversion tool.
-Read alongside `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`;
+Read alongside `${DEBAID_ROOT}/docs/house-style.md`;
 this file documents what is *Go-specific*.
 
 Authoritative upstream sources:

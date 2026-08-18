@@ -6,7 +6,7 @@ Tracks Debian Policy 4.7.4 (March 2026).
 
 This file is the source of truth for *prescriptive* packaging choices
 that go beyond what Debian Policy mandates. Workers consult it on
-every run via `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`; a
+every run via `${DEBAID_ROOT}/docs/house-style.md`; a
 maintainer can override the active style by passing
 `--house-style=<path>` to the orchestrator. Every rule below carries one of:
 
@@ -120,7 +120,7 @@ maintainer can override the active style by passing
 - Version 5 syntax is the only supported target. Refresh upgrades
   any earlier version (v3, v4) directly to v5; there is no
   intermediate v3→v4 step. **DD-judgement.** See
-  `${CLAUDE_PLUGIN_ROOT}/docs/references/watch-v5.md` for worked
+  `${DEBAID_ROOT}/docs/references/watch-v5.md` for worked
   examples and the v4→v5 migration table.
 - `Pgp-Mode: auto` (or `mangle`) ONLY when `debian/upstream/signing-key.asc`
   exists. Otherwise `Pgp-Mode: none`.  Workers MUST check for the key before
