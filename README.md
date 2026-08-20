@@ -5,10 +5,10 @@ bootstrap, modernise, lint-clean, and add autopkgtest coverage to a
 package -- while keeping the maintainer in the loop for every
 judgement call.
 
-debaid is **standalone**: a single binary you install and run
-directly. It is not a plugin and needs no AI CLI or plugin
-machinery -- it runs on its own and sits happily alongside your
-editor or agent of choice (e.g. opencode).
+debaid is a **CLI tool**: a single binary you install and run
+directly. It is not an editor plugin -- it drives
+[opencode](https://opencode.ai) under the hood for the LLM
+judgement calls, and otherwise stays out of your editor's way.
 
 debaid is **prescriptive** (house style + policy + tooling
 indicators) and **respectful** (dry-run by default on destructive
@@ -17,11 +17,11 @@ request, no Maintainer-field changes).
 
 ## Approach
 
-debaid is a single, standalone Rust binary -- no dependency on any
-other AI CLI. Its only external needs are the real Debian tools it
-drives (`lintian`, `sbuild`, `dpkg-buildpackage`, `gbp`, ...) and an
-OpenRouter-compatible endpoint for the LLM judgement calls -- the
-provider and model are config, not a build-time choice.
+debaid is a single Rust binary that shells out to two kinds of
+tool: the real Debian tools it drives (`lintian`, `sbuild`,
+`dpkg-buildpackage`, `gbp`, ...) and `opencode`, which carries the
+LLM judgement calls. The provider and model are opencode config,
+not a build-time choice -- any OpenAI-compatible endpoint works.
 
 The split:
 
@@ -38,13 +38,18 @@ and run with no API key.
 
 ## Configure
 
+debaid needs `opencode` on `PATH`, plus a key for whichever
+provider opencode is pointed at:
+
 ```
 export OPENROUTER_API_KEY=sk-or-...
 ```
 
-Model and base URL default to OpenRouter and are overridable via
-`~/.config/debaid/config.toml`, so any OpenAI-compatible endpoint
-works.
+Model and endpoint are opencode's own configuration; debaid
+settings live in `~/.config/debaid/config.toml`. See
+[`.envrc.example`](./.envrc.example) for a working OpenRouter
+setup, and [`opencode.json`](./opencode.json) for the command
+deny-list debaid ships.
 
 ## Commands
 
@@ -62,7 +67,7 @@ Global flags: `--dry-run`, `--house-style=PATH`, `--reference=PATH|none`,
 ## Status
 
 Early. The CLI skeleton is in place; the phases are stubs and the
-agent loop is not wired up yet.
+opencode-backed agent loop is not wired up yet.
 
 Language overlays ship for Python (pybuild), Rust (dh-cargo; bails
 out to debcargo for libraries), Go (dh-golang), and Perl (DRAFT,

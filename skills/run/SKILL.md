@@ -3,7 +3,7 @@ name: run
 description: Orchestrate Debian packaging tasks — bootstrap, refresh, lintian, autopkgtest — via the debaid worker skills. Use when a maintainer wants end-to-end packaging help on a Debian/Ubuntu source package, or a subset of phases selected with --only / --skip. Debian-first, Ubuntu overlay.
 ---
 
-# debaid:run — orchestrator
+# debaid run — orchestrator
 
 You are the entry point for the `debaid` packaging assistant.
 Your job is to:
@@ -42,15 +42,16 @@ require explicit flags for non-default behaviour.
 
 ## Worker dispatch
 
-Workers are invoked through the Skill tool by their plugin-namespaced
-name. The orchestrator does NOT call worker scripts directly.
+Workers are invoked as subagents, each seeded with its own
+`skills/<phase>/SKILL.md`. The orchestrator does NOT call worker
+scripts directly.
 
-| Phase | Skill tool invocation |
-|---|---|
-| bootstrap   | `skill: debaid:bootstrap, args: <flag-string>` |
-| refresh     | `skill: debaid:refresh,   args: <flag-string>` |
-| lintian     | `skill: debaid:lintian,   args: <flag-string>` |
-| autopkgtest | `skill: debaid:autopkgtest, args: <flag-string>` |
+| Phase | Worker prompt | Invocation |
+|---|---|---|
+| bootstrap   | `${DEBAID_ROOT}/skills/bootstrap/SKILL.md`   | `debaid bootstrap <flag-string>` |
+| refresh     | `${DEBAID_ROOT}/skills/refresh/SKILL.md`     | `debaid refresh <flag-string>` |
+| lintian     | `${DEBAID_ROOT}/skills/lintian/SKILL.md`     | `debaid lintian <flag-string>` |
+| autopkgtest | `${DEBAID_ROOT}/skills/autopkgtest/SKILL.md` | `debaid autopkgtest <flag-string>` |
 
 The `args` string is forwarded verbatim (minus `--only`/`--skip`,
 which the orchestrator consumes). If invoked with `--yes`, append
@@ -61,8 +62,8 @@ gates.
 
 ### 1. Detect
 
-Run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh` and
-`${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh` from the source
+Run `${DEBAID_ROOT}/scripts/detect-source.sh` and
+`${DEBAID_ROOT}/scripts/tooling-probe.sh` from the source
 tree root. Merge their outputs with target/user/budget/reference
 fields to form the context JSON. Write it to
 `./.debaid/context.json` (create the directory if needed; add
@@ -78,15 +79,15 @@ Required context fields populated here:
 - `target.host_arch` — from `dpkg --print-architecture`.
 - `user.debfullname` / `user.debemail` — from env vars then
   `git config user.name` / `user.email`.
-- `budget.*` — defaults from `${CLAUDE_PLUGIN_ROOT}/shared-context.md`
+- `budget.*` — defaults from `${DEBAID_ROOT}/shared-context.md`
   unless overridden by flags.
 - `reference_corpus` — `--reference=<path>` or default to
-  `${CLAUDE_PLUGIN_ROOT}/tests/fixtures/`, or `null` if
+  `${DEBAID_ROOT}/tests/fixtures/`, or `null` if
   `--reference=none`.
 - `house_style` — `--house-style=<path>` or default to
-  `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`.
+  `${DEBAID_ROOT}/docs/house-style.md`.
 
-See `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the full JSON
+See `${DEBAID_ROOT}/shared-context.md` for the full JSON
 schema and field semantics.
 
 Print a one-paragraph summary of detected state to the maintainer
@@ -94,8 +95,8 @@ before proceeding.
 
 ### 2. Pick worker: bootstrap or refresh
 
-- `source.has_debian_dir == false` → dispatch `debaid:bootstrap`.
-- `source.has_debian_dir == true`  → dispatch `debaid:refresh` if
+- `source.has_debian_dir == false` → dispatch `debaid bootstrap`.
+- `source.has_debian_dir == true`  → dispatch `debaid refresh` if
   it was requested via `--only` / not skipped; otherwise note that
   refresh is available and move on.
 - Both phases requested explicitly → error out: "use
@@ -103,14 +104,14 @@ before proceeding.
 
 ### 3. Lintian
 
-Dispatch `debaid:lintian`. Honour the build+lint loop budget from
+Dispatch `debaid lintian`. Honour the build+lint loop budget from
 `context.json`. If the worker bails, stop the whole pipeline and
 present its bail-out summary to the maintainer; do NOT proceed to
 autopkgtest until the maintainer responds.
 
 ### 4. Autopkgtest
 
-Dispatch `debaid:autopkgtest`. Same bail behaviour as lintian.
+Dispatch `debaid autopkgtest`. Same bail behaviour as lintian.
 
 ### 5. Final summary
 

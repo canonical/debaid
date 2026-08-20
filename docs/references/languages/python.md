@@ -1,7 +1,7 @@
 # Python — debaid overlay
 
 Debian Python packaging conventions and the debaid defaults
-for them. Read alongside `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`;
+for them. Read alongside `${DEBAID_ROOT}/docs/house-style.md`;
 this file only documents what is *Python-specific*.
 
 Authoritative upstream sources:
@@ -128,7 +128,7 @@ Note: if more than one source provider (github, pypi, gitlab) do exist, the
 template used should be asked to the maintainer if no watch file is shipped.
 
 For PyPI-hosted upstreams, use the `pypi` template — see
-`${CLAUDE_PLUGIN_ROOT}/docs/references/watch-v5.md`:
+`${DEBAID_ROOT}/docs/references/watch-v5.md`:
 
 ```
 version=5
@@ -220,7 +220,7 @@ The refresh skill applies these when `source.language == "python"`:
 pybuild runs the upstream test suite across each supported
 Python version. When a test is flaky, the cost compounds. Use
 the iteration-budget envelope (see
-`${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "Iteration-budget
+`${DEBAID_ROOT}/shared-context.md` § "Iteration-budget
 envelope") to cap retries; if a test is flaky, narrow it via
 `PYBUILD_TEST_ARGS` rather than retrying the whole build.
 

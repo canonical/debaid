@@ -3,7 +3,7 @@
 Debian Rust packaging splits sharply into two paths depending on
 whether the upstream is a **library crate** (consumed by other
 Rust packages) or an **application binary** (consumed by end
-users). Read alongside `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md`;
+users). Read alongside `${DEBAID_ROOT}/docs/house-style.md`;
 this file documents what is *Rust-specific*.
 
 Authoritative upstream sources:
@@ -164,7 +164,7 @@ strips it because each crate is consumed independently.
 
 Rust applications usually release on GitHub or GitLab, not on
 crates.io directly. Use `Template: github` (see
-`${CLAUDE_PLUGIN_ROOT}/docs/references/watch-v5.md`):
+`${DEBAID_ROOT}/docs/references/watch-v5.md`):
 
 ```
 version=5
@@ -210,7 +210,7 @@ In addition to the worker-level bail-outs:
 
 - Source is a library crate — see § "Library crates" above.
   Bootstrap's "Rust library crate detected" bail-out in
-  `${CLAUDE_PLUGIN_ROOT}/skills/bootstrap/SKILL.md` § "Bail-out
+  `${DEBAID_ROOT}/skills/bootstrap/SKILL.md` § "Bail-out
   conditions" applies.
 - Workspace with mixed library and binary members — ask the
   maintainer which member to package and whether the rest

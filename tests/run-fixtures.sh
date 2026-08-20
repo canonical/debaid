@@ -15,8 +15,8 @@
 #   2  --strict and at least one fixture is a stub
 #
 # Environment:
-#   DEBAID_CLAUDE_CMD   command used by fixtures to invoke claude.
-#                         Default: "claude --bare --print".
+#   DEBAID_AGENT_CMD    command used by fixtures to invoke the agent.
+#                         Default: "opencode run".
 #                         Exported for use by fixture test scripts.
 
 set -euo pipefail
@@ -44,7 +44,7 @@ if [[ ! -d "$FIXTURES" ]]; then
   exit 2
 fi
 
-export DEBAID_CLAUDE_CMD="${DEBAID_CLAUDE_CMD:-claude --bare --print}"
+export DEBAID_AGENT_CMD="${DEBAID_AGENT_CMD:-opencode run}"
 
 pass=0
 fail=0

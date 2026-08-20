@@ -7,14 +7,14 @@ This directory serves two purposes simultaneously:
 2. **Reference corpus.** Workers consult `<fixture>/debian/` (for
    fixtures that have one) as idiom examples — see
    `shared-context.md` § "Reference-corpus contract" at the
-   plugin root.
+   repository root.
 
 The fixture driver lives one level up at `tests/run-fixtures.sh`.
 It walks each fixture, runs `<fixture>/test.sh` if executable, and
 reports `[PASS]`/`[FAIL]`/`[STUB]` per fixture. Pass `--strict` to
 fail when stubs remain.
 
-Not to be confused with `scripts/verify.sh` (at the plugin root),
+Not to be confused with `scripts/verify.sh` (at the repository root),
 which is the build+lintian snapshot tool that worker skills call
 between iteration attempts — see `shared-context.md`.
 
@@ -44,7 +44,8 @@ When promoting a fixture from stub to real:
 3. Add a `<fixture>/test.sh` driver that:
    - Copies upstream to a scratch dir.
    - Runs the relevant worker via
-     `${DEBAID_CLAUDE_CMD:-claude --bare --print} '/debaid:bootstrap ...'`.
+     `${DEBAID_AGENT_CMD:-opencode run} "$(cat "$DEBAID_ROOT/skills/bootstrap/SKILL.md")"`,
+     or `debaid bootstrap` once the phase is wired up.
    - Diffs the produced `debian/` against `expected/debian/`.
    - Reports lintian/sbuild status.
 

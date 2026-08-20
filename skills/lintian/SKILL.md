@@ -3,7 +3,7 @@ name: lintian
 description: Resolve lintian -EvIL +pedantic output on a Debian source package by classifying each tag and producing the right fix — packaging change, DEP-3 quilt patch, or justified override with a comment. Bails to the maintainer after 3 attempts on the same tag. Never blanket-suppresses.
 ---
 
-# debaid:lintian
+# debaid lintian
 
 Drive a package toward `lintian -EvIL +pedantic` clean, or
 justified-overrides-only.
@@ -11,9 +11,9 @@ justified-overrides-only.
 ## Preconditions
 
 - A context JSON exists at `./.debaid/context.json`. If missing,
-  build it: run `${CLAUDE_PLUGIN_ROOT}/scripts/detect-source.sh`
-  and `${CLAUDE_PLUGIN_ROOT}/scripts/tooling-probe.sh`, merge their
-  outputs (see `${CLAUDE_PLUGIN_ROOT}/shared-context.md` for the
+  build it: run `${DEBAID_ROOT}/scripts/detect-source.sh`
+  and `${DEBAID_ROOT}/scripts/tooling-probe.sh`, merge their
+  outputs (see `${DEBAID_ROOT}/shared-context.md` for the
   full schema).
 - `source.has_debian_dir == true`.
 - `tooling.lintian.available == true`. If not, ask the maintainer
@@ -26,7 +26,7 @@ For every tag lintian emits, classify it into exactly one bucket:
 | Bucket | Use when | How to fix |
 |---|---|---|
 | **fix in packaging** | Tag is fixable by a change in `debian/` | Smallest patch that resolves the tag without side effects. |
-| **fix upstream via patch** | Tag points to an upstream source issue | Author a DEP-3 patch via the `gbp pq` workflow: commit on `patch-queue/<branch>`, then `gbp pq export` materialises the `.patch` file under `debian/patches/` with `series` updated. Include a `Forwarded:` header (URL or `no` + reason). See `${CLAUDE_PLUGIN_ROOT}/docs/house-style.md` § "Patches". |
+| **fix upstream via patch** | Tag points to an upstream source issue | Author a DEP-3 patch via the `gbp pq` workflow: commit on `patch-queue/<branch>`, then `gbp pq export` materialises the `.patch` file under `debian/patches/` with `series` updated. Include a `Forwarded:` header (URL or `no` + reason). See `${DEBAID_ROOT}/docs/house-style.md` § "Patches". |
 | **justified override** | Tag is a false positive, or the right answer is to suppress for this package | `lintian-overrides` file with a `# reason:` line directly above the override. |
 | **won't fix** | Tag is real but maintainer accepts the cost | Report in summary; do NOT silently override. |
 
@@ -70,7 +70,7 @@ Phase-specific (lintian):
 ## Process
 
 1. **Load context.**
-2. **Run verify.** Call `${CLAUDE_PLUGIN_ROOT}/scripts/verify.sh`.
+2. **Run verify.** Call `${DEBAID_ROOT}/scripts/verify.sh`.
    This produces a JSON snapshot of build state and lintian tags
    bucketed by severity. If `build.ok == false` and lintian
    couldn't run, bail to the maintainer — the build failure is
@@ -90,7 +90,7 @@ Phase-specific (lintian):
    only justified overrides remain. Report.
 
 For the verify-script output schema, see
-`${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "Verify-script output
+`${DEBAID_ROOT}/shared-context.md` § "Verify-script output
 schema (v1)".
 
 ## Override file format
@@ -118,7 +118,7 @@ mypkg: privacy-breach-generic [usr/share/doc/mypkg/README.html]
 - Build fails as a precondition for running lintian.
 
 Use the bail-out summary format from
-`${CLAUDE_PLUGIN_ROOT}/shared-context.md` § "Bail-out summary
+`${DEBAID_ROOT}/shared-context.md` § "Bail-out summary
 format". Include:
 - The unresolved tag and lintian's `--info` text for it (read it
   from `verify.sh`'s `lintian.log_path`).

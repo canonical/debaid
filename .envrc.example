@@ -1,0 +1,8 @@
+# opencode talks to OpenRouter; debaid drives opencode.
+export OPENROUTER_API_KEY=sk-or-...
+
+# Model selection is opencode configuration -- provider/model ids.
+export OPENCODE_MODEL="openrouter/qwen/qwen3-coder"
+
+# Point worker prompts, scripts, and reference docs at this checkout.
+export DEBAID_ROOT="$PWD"
