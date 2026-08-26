@@ -10,7 +10,6 @@ use anyhow::Result;
 
 use crate::cli::{Cli, Command};
 
-/// Route a parsed [`Cli`] to the handler for its subcommand.
 pub(crate) fn dispatch(cli: &Cli) -> Result<()> {
     match &cli.command {
         Command::Run(args) => run::execute(&cli.common, args),
