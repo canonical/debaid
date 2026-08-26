@@ -4,8 +4,9 @@
 # Usage: detect-source.sh [PATH]
 #   PATH defaults to the current working directory.
 #
-# Output: a single JSON object on stdout matching shared-context.md's
-# "source" sub-object.
+# Output: a single JSON object on stdout forming the "source"
+# sub-object of the context document; see `Source` in
+# src/model/context.rs for the shape.
 #
 # Requires: jq (used for safe JSON construction).
 

@@ -3,8 +3,9 @@
 #
 # Usage: tooling-probe.sh
 #
-# Output: a single JSON object on stdout matching shared-context.md's
-# "tooling" sub-object.
+# Output: a single JSON object on stdout forming the "tooling"
+# sub-object of the context document: an open map keyed by
+# executable name; see `Tooling` in src/model/context.rs.
 #
 # Requires: jq (used for safe JSON construction).
 

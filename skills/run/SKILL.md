@@ -81,14 +81,12 @@ Required context fields populated here:
   `git config user.name` / `user.email`.
 - `budget.*` — defaults from `${DEBAID_ROOT}/shared-context.md`
   unless overridden by flags.
-- `reference_corpus` — `--reference=<path>` or default to
-  `${DEBAID_ROOT}/tests/fixtures/`, or `null` if
-  `--reference=none`.
+- `reference_corpus` — `--reference=<path>`, else `null`.
 - `house_style` — `--house-style=<path>` or default to
   `${DEBAID_ROOT}/docs/house-style.md`.
 
-See `${DEBAID_ROOT}/shared-context.md` for the full JSON
-schema and field semantics.
+See `${DEBAID_ROOT}/shared-context.md` for field semantics and the
+rules workers must follow; `src/model/context.rs` defines the shape.
 
 Print a one-paragraph summary of detected state to the maintainer
 before proceeding.

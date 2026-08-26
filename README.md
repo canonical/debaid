@@ -88,12 +88,12 @@ These are enforced in code, not just in prompts.
 ## Docs
 
 - [`shared-context.md`](./shared-context.md) -- the contract every
-  worker obeys (context schema, verify output, iteration budget,
-  bail-out format).
+  worker obeys (field semantics, iteration budget, bail-out format,
+  hard rules). The document shapes themselves live in `src/model/`.
 - [`docs/house-style.md`](./docs/house-style.md) -- every
   prescriptive choice, with citations.
-- [`docs/developer.md`](./docs/developer.md) -- adding a worker or a
-  language overlay.
+- [`docs/developer.md`](./docs/developer.md) -- adding a worker, a
+  tool, or a language overlay.
 
 ## License
 

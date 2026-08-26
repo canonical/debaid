@@ -15,19 +15,9 @@
 #   --no-build skip the build and run lintian against whatever
 #              .changes/.dsc already exists alongside the source tree.
 #
-# Output: a single JSON object on stdout. See
-# shared-context.md § "Verify-script output schema (v1)" for the
-# authoritative spec.
-#
-# Shape (summary):
-#   {
-#     "build":   { "tool", "ran", "ok", "log_path", "exit_code" },
-#     "lintian": { "ran", "scope", "log_path",
-#                  "errors": [...], "warnings": [...],
-#                  "infos":  [...], "pedantics": [...],
-#                  "overrides_applied": int },
-#     "diff_size_lines": int|null
-#   }
+# Output: a single JSON object on stdout. Its shape is defined by
+# `VerifySnapshot` in src/model/verify.rs; shared-context.md
+# § "Verify snapshot semantics" explains what the fields mean.
 #
 # This script is stateless. Workers compute progress (e.g.
 # "same_class_as_previous") by comparing two consecutive snapshots
