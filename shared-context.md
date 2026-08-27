@@ -1,15 +1,22 @@
 # Shared context contract
 
 This file is the developer-facing spec that all debaid skills
-implement. It documents the runtime context schema, the verify
-script's output, the iteration-budget envelope, and the bail-out
-format.
+implement. It documents how context is passed, what the fields
+*mean*, the iteration-budget envelope, and the bail-out format.
+
+**It deliberately does not restate the shape of either document.**
+The field names, types, and defaults are defined once, in the Rust
+types under `src/model/` — `context.rs` for the runtime context and
+`verify.rs` for the verify snapshot. Read those for the shape; read
+this for the semantics and the rules. Anything a maintainer needs
+to *decide* lives here; anything a parser needs to *know* lives in
+the code.
 
 Worker `SKILL.md` files inline the parts they need to attend to at
 every invocation (hard rules, the short reactive templates). They
 reference this file by absolute path
-(`${DEBAID_ROOT}/shared-context.md`) for the longer
-schemas, which they `Read` only when consuming them.
+(`${DEBAID_ROOT}/shared-context.md`) for the longer prose, which
+they `Read` only when consuming it.
 
 If you change a hard rule or the bail-out format here, update all
 five worker `SKILL.md` files to match — see `docs/developer.md`
@@ -30,60 +37,27 @@ Workers MUST:
    `${DEBAID_ROOT}/scripts/tooling-probe.sh` themselves,
    then merge their outputs.
 
-## JSON schema (v1)
+## Compatibility guarantees
 
-```json
-{
-  "schema_version": 1,
-  "generated_at": "ISO 8601 UTC timestamp",
-  "source": {
-    "path": "absolute path to source tree",
-    "language": "go|rust|python|c|cpp|java|nodejs|perl|ruby|haskell|unknown",
-    "build_system": "autotools|meson|cmake|cargo|go-mod|setuptools|pyproject|nodejs|make|unknown",
-    "has_debian_dir": true,
-    "has_quilt_patches": false,
-    "debian_branch_layout": "monorepo|dep14|separate-branch|none|unknown",
-    "upstream_vcs": "git|hg|svn|tarball|none|unknown",
-    "ubuntu_delta": null
-  },
-  "tooling": {
-    "sbuild":             {"available": true,  "version": "x.y"},
-    "pbuilder":           {"available": false, "version": null},
-    "autopkgtest":        {"available": true,  "version": "x.y"},
-    "lintian":            {"available": true,  "version": "x.y"},
-    "debputy":            {"available": false, "version": null},
-    "wrap-and-sort":      {"available": true,  "version": "x.y"},
-    "gbp":                {"available": true,  "version": "x.y"},
-    "dh_make":            {"available": true,  "version": "x.y"},
-    "cme":                {"available": false, "version": null},
-    "git-ubuntu":         {"available": false, "version": null},
-    "requestsync":        {"available": false, "version": null},
-    "pull-debian-source": {"available": false, "version": null},
-    "pull-lp-source":     {"available": false, "version": null},
-    "syncpackage":        {"available": false, "version": null},
-    "update-maintainer":  {"available": false, "version": null},
-    "mk-sbuild":          {"available": false, "version": null}
-  },
-  "target": {
-    "distro":       "debian|ubuntu",
-    "release":      "unstable|trixie|forky|stonking|resolute|noble|...|unknown",
-    "pocket":       "dev|proposed|updates|security|backports",
-    "freeze_state": "none|debian-import-freeze|feature-freeze|final-freeze|unknown",
-    "host_arch":    "amd64|arm64|..."
-  },
-  "user": {
-    "debfullname": "value of DEBFULLNAME or git config user.name",
-    "debemail":    "value of DEBEMAIL or git config user.email"
-  },
-  "budget": {
-    "max_attempts_per_error_class": 3,
-    "diff_threshold_lines": 200,
-    "repeat_budget": 2
-  },
-  "reference_corpus": "absolute path to reference debian/ trees, or null",
-  "house_style": "absolute path to house-style.md (orchestrator passes the active one)"
-}
-```
+Properties of the context document that are not obvious from the
+type definitions:
+
+- **`tooling` is an open map**, keyed by executable name. An
+  *absent* key means "not probed" — distinct from a present entry
+  with `available: false`, which means "probed, not found". The
+  probed set is whatever `${DEBAID_ROOT}/scripts/tooling-probe.sh`
+  emits, so it grows without a schema change. Workers read it by
+  name, e.g. `tooling.lintian.available`.
+- **Unknown enum values degrade rather than fail.** The language,
+  build-system, branch-layout, upstream-VCS, and freeze-state
+  fields all accept any string; anything unrecognised reads back as
+  `unknown`. A context written by a newer debaid stays readable by
+  an older one.
+- **Suite and architecture are free-form strings**, not enums. New
+  releases and ports appear on their own schedule.
+- **Optional fields may be omitted.** Producers SHOULD write them
+  explicitly; consumers MUST tolerate absence and fall back to the
+  defaults declared in `src/model/context.rs`.
 
 ## Field semantics — Ubuntu-specific
 
@@ -104,7 +78,7 @@ Workers MUST:
   if it cannot determine it cheaply; workers MUST then treat
   cautious behaviour as default.
 
-## Verify-script output schema (v1)
+## Verify snapshot semantics
 
 `${DEBAID_ROOT}/scripts/verify.sh` is the iteration-loop primitive
 workers consult between fix attempts. It runs a build (sbuild or
@@ -117,30 +91,8 @@ Exit code is 0 on a successful snapshot regardless of build/lint
 pass-or-fail. Non-zero only on input errors (missing `debian/`,
 missing `jq`, bad args).
 
-```json
-{
-  "build": {
-    "tool":      "sbuild|dpkg-buildpackage|none",
-    "ran":       true,
-    "ok":        true,
-    "log_path":  "/tmp/verify-build.XXXXXX.log",
-    "exit_code": 0
-  },
-  "lintian": {
-    "ran":               true,
-    "scope":             "changes|dsc|source-tree|none",
-    "log_path":          "/tmp/verify-lintian.XXXXXX.log",
-    "errors":            ["tag-name", "..."],
-    "warnings":          ["tag-name", "..."],
-    "infos":             ["tag-name", "..."],
-    "pedantics":         ["tag-name", "..."],
-    "overrides_applied": 0
-  },
-  "diff_size_lines": 0
-}
-```
-
-Field notes for workers:
+The snapshot's shape is defined by `VerifySnapshot` in
+`src/model/verify.rs`. What the fields mean:
 
 - **`build.ran == false`** means no builder executed (either
   `--no-build` was passed or no builder was available). `build.ok`
@@ -152,7 +104,8 @@ Field notes for workers:
   MUST weight a clean result less when `scope == "source-tree"`.
 - **Tag arrays** may contain duplicates when a tag fires on more
   than one file. The repetition is signal — workers MAY use it to
-  prioritise fixes that resolve many instances at once.
+  prioritise fixes that resolve many instances at once. They
+  default to empty when omitted.
 - **`overrides_applied`** counts `N: Overridden:` lines in the
   lintian log — it tells the worker how many tags are already
   suppressed by existing overrides, so it doesn't double-override.
@@ -160,8 +113,11 @@ Field notes for workers:
   (relative to the git index), so upstream churn doesn't pollute
   the budget check. `null` if the source tree is not a git repo.
 - **Log paths** point at `/tmp` files that persist for the
-  session. Workers MAY `Read` them for context (e.g. lintian
-  `--info` text on a specific tag) but MUST NOT mutate them.
+  session. They are always emitted, including when the step did not
+  run — the file is then empty or carries the reason, e.g. a `none`
+  builder records that no builder was available. Workers MAY `Read`
+  them for context (e.g. lintian `--info` text on a specific tag)
+  but MUST NOT mutate them.
 
 ## Iteration-budget envelope
 
@@ -183,9 +139,10 @@ All workers that mutate the source tree MUST honour:
 
 - If `reference_corpus` is set, workers MAY consult `${corpus}/<language>/`
   for exemplar `debian/` trees. Consultation is read-only.
-- The default corpus is `tests/fixtures/` of this repo.
-- Override with `--reference=<path>` on the orchestrator or worker;
-  disable with `--reference=none` (sets `reference_corpus: null`).
+- There is no default corpus; `reference_corpus` is `null` unless the
+  maintainer passes one.
+- Set it with `--reference=<path>` on the orchestrator or worker;
+  `--reference=none` forces `reference_corpus: null`.
 - Workers MUST NOT copy corpus files verbatim — corpus exemplars
   are reference points for idiom, not templates. Generated files
   go through house-style rendering.

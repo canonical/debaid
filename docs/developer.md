@@ -1,6 +1,6 @@
 # debaid — developer guide
 
-How to extend `debaid` with a new worker, fixture, or reference
+How to extend `debaid` with a new worker, tool, or reference
 doc.
 
 `debaid` is a standalone CLI. The Rust binary under `src/` owns
@@ -68,17 +68,100 @@ Steps:
    `${DEBAID_ROOT}/docs/references/*.md`.
 7. **Update the orchestrator.** Add the phase to the dispatch
    table in `skills/run/SKILL.md`.
-8. **Add a fixture** under `tests/fixtures/` that exercises the
-   worker end-to-end (or annotate an existing fixture to cover
-   the new phase).
-9. **Update the README phase list.**
+8. **Update the README phase list.**
 
-## Adding a fixture
+## Data model
 
-See `tests/fixtures/README.md`. Each fixture is a minimal
-upstream tree plus an `expected/` golden output and a `test.sh`
-driver. `tests/run-fixtures.sh` walks the fixtures directory and
-runs each fixture's `test.sh`.
+The two documents that cross the boundary between the
+deterministic core and the agent — the runtime context and the
+verify snapshot — are defined once, as Rust types:
+
+```
+src/model/context.rs   # Context and friends (context.json)
+src/model/verify.rs    # VerifySnapshot (verify.sh output)
+```
+
+**These types are the schema.** `shared-context.md` deliberately
+does not restate field names or types; it documents what the
+fields *mean*, the iteration budget, the bail-out format, and the
+hard rules. Add a field in the struct, document its meaning in the
+spec — never re-list the shape in prose.
+
+Two conventions worth knowing before you edit them:
+
+- Enums that describe detected facts (`Language`, `BuildSystem`,
+  `BranchLayout`, `UpstreamVcs`, `FreezeState`) carry an `Unknown`
+  variant marked `#[serde(other)]`. Unrecognised input degrades to
+  `unknown` instead of failing the parse, so a context written by a
+  newer debaid stays readable by an older one.
+- `Tooling` is an open map keyed by executable name, not a struct
+  with one field per tool. `scripts/tooling-probe.sh` can probe more
+  tools without a type change.
+
+## Adding a tool
+
+Tools are what the agent is allowed to *do*: read and write files,
+run commands, render templates, edit deb822 stanzas. They live
+behind one interface in `src/tool.rs`, so the deterministic side and
+the agent side can be built independently.
+
+Implement `TypedTool` and you get the type-erased `Tool` — which is
+what the registry and the agent loop use — for free:
+
+```rust
+struct RenderTemplate;
+
+#[derive(Deserialize)]
+struct Args { template: String, dest: PathBuf }
+
+#[derive(Serialize)]
+struct Output { written: bool, path: PathBuf }
+
+impl TypedTool for RenderTemplate {
+    const NAME: &'static str = "render_template";
+    const DESCRIPTION: &'static str = "Render a packaging template to debian/.";
+    type Args = Args;
+    type Output = Output;
+
+    fn parameters_schema() -> Value { /* JSON Schema for Args */ }
+
+    fn run(&self, ctx: &ToolContext, args: Args) -> Result<Output, ToolError> {
+        if ctx.dry_run {
+            return Ok(Output { written: false, path: args.dest });
+        }
+        // ...
+    }
+}
+```
+
+Then register it:
+
+```rust
+let mut registry = ToolRegistry::new();
+registry.register(Box::new(RenderTemplate));
+```
+
+Rules of the road:
+
+1. **Prefer `TypedTool`.** Implement `Tool` directly only when the
+   argument shape is genuinely dynamic; you then own the
+   deserialisation and must return `ToolError::InvalidArguments`
+   yourself.
+2. **Honour `ToolContext`.** `workspace` is the source tree — resolve
+   paths against it, never assume the process CWD. When `dry_run` is
+   set, a mutating tool MUST report what it would do and change
+   nothing. `assume_yes` means confirmation gates are pre-approved.
+3. **Refuse, don't panic.** A guardrail that blocks a call returns
+   `ToolError::denied(NAME, reason)`. The hard rules in
+   `shared-context.md` § "What workers MUST NOT do" are enforced
+   twice: in the tool itself, and by the bash deny-list in
+   `opencode.json`. A tool that shells out MUST NOT rely on the
+   deny-list alone.
+4. **`NAME` is a wire identifier.** The agent selects tools by it and
+   the registry keys on it, so renaming one is a breaking change —
+   update the worker prompts that mention it in the same commit.
+5. **Keep `DESCRIPTION` to one sentence.** It is shown to the model
+   as the basis for choosing the tool.
 
 ## Adding a reference doc
 
@@ -126,10 +209,10 @@ of `rules.python.tmpl`.
 ### Recipe
 
 1. **Pick a language code.** This is the value `source.language`
-   will hold. The current enum lives in
-   `${DEBAID_ROOT}/shared-context.md` § "JSON schema
-   (v1)". If your language is not in that enum, extend it
-   first.
+   will hold. The enum is the `Language` type in
+   `src/model/context.rs`. If your language is not in it, add a
+   variant first — unrecognised values otherwise read back as
+   `unknown`.
 
 2. **Write the overlay doc.** Create
    `docs/references/languages/<lang>.md`. Follow the shape of
@@ -196,10 +279,8 @@ of `rules.python.tmpl`.
      "No autodep8 generator exists for …" line that currently
      covers Rust and Go.
 
-8. **No fixture work in the overlay commit.** Fixture
-   promotion is handled in a separate pass — see
-   `tests/fixtures/README.md`. Shipping overlay text and a
-   template does not require touching `tests/`.
+8. **Overlay commits are docs + template only.** Shipping
+   overlay text and a rules template needs no test changes.
 
 ### DRAFT marker convention
 
@@ -251,6 +332,12 @@ The house style and references go stale. Quarterly, check:
 | `Standards-Version`        | `docs/house-style.md` (Control fields §) + `skills/bootstrap/templates/control.tmpl` |
 | Salsa-CI pinned ref        | `docs/references/salsa-ci.md` + `skills/bootstrap/templates/salsa-ci.yml.tmpl`       |
 | Watch syntax version       | `docs/house-style.md` (debian/watch §) + `skills/bootstrap/templates/watch.tmpl`     |
+
+The context and verify schemas are deliberately *not* on this list:
+they exist only in `src/model/`, and `shared-context.md` documents
+their semantics without restating their shape. Keep it that way — if
+you find yourself pasting field names into markdown, the code should
+be the reference instead.
 
 `debian/control` has no comment syntax, so no inline reminder
 lives in the template — the discipline is here.
